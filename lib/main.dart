@@ -1,4 +1,3 @@
-import 'package:dc1clientflutter/common/constant.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/route/home_route.dart';
 import 'package:dc1clientflutter/route/setting_route.dart';
@@ -41,6 +40,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyRoute {
-  static const String THEME_ROUTE = "theme_route";
+  static const String THEME_ROUTE = "ThemeRoute";
   static const String SETTING_ROUTE = "SettingRoute";
 }

@@ -108,7 +108,12 @@ class _SettingRouteState extends State<SettingRoute> {
 
   void _save() {
     if ((_formKey.currentState as FormState).validate()) {
-      Global.profile.host = _hostController.text;
+      if (!_hostController.text.startsWith("http://") ||
+          !_hostController.text.startsWith("https://")) {
+        Global.profile.host = "http://${_hostController.text}";
+      } else {
+        Global.profile.host = _hostController.text;
+      }
       Global.profile.socketPort = int.parse(_socketPortController.text);
       Global.profile.httpPort = int.parse(_httpPortController.text);
       Global.profile.token = _tokenController.text;

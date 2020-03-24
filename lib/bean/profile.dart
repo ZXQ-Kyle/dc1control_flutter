@@ -4,6 +4,8 @@ part 'profile.g.dart';
 
 @JsonSerializable()
 class Profile extends Object {
+  ///http://192.168........
+  ///https://www......
   @JsonKey(name: 'host')
   String host;
 

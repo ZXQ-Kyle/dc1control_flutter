@@ -21,11 +21,13 @@ class SocketManager {
   Socket _socket;
 
   void init() {
-    myPrint("SocketManager init:"+Global.profile.toJson().toString());
+    myPrint("SocketManager init:" + Global.profile.toJson().toString());
     if (Global.profile?.host == null) {
       return;
     }
-    Socket.connect(Global.profile?.host, Global.profile?.socketPort)
+    Socket.connect(
+            Global.profile?.host?.replaceAll(new RegExp("(https|http)://"), ""),
+            Global.profile?.socketPort)
         .then((Socket sock) {
       _socket = sock;
       var stream = _socket.asBroadcastStream();

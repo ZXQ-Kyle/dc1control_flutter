@@ -1,6 +1,9 @@
+import 'package:dc1clientflutter/bean/dc1.dart';
+import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/common/socket.dart';
 import 'package:dc1clientflutter/main.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dc1clientflutter/route/item_dc1_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -14,10 +17,24 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRouteState extends State<HomeRoute> {
+  List<Dc1> _data;
+
   @override
   void initState() {
     SocketManager().init();
+    initData();
     super.initState();
+  }
+
+  void initData() {
+    Api(context).queryDc1List().then((dc1List) {
+      myPrint(dc1List.toString());
+      if (dc1List != null) {
+        setState(() {
+          _data = dc1List;
+        });
+      }
+    });
   }
 
   Widget build(BuildContext context) {
@@ -25,13 +42,16 @@ class _HomeRouteState extends State<HomeRoute> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(),
+      body: Container(
+        decoration: BoxDecoration(color: Colors.grey[200]),
+        child: ListView.builder(
+          itemCount: _data == null ? 0 : _data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Dc1ItemWidget(_data[index]);
+          },
+        ),
+      ),
       drawer: MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => SocketManager().send("fab_press"),
-        backgroundColor: Theme.of(context).primaryColor,
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
@@ -76,7 +96,7 @@ class MyDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text("设置"),
-            onTap: ()=>Navigator.of(context).pushNamed(MyRoute.SETTING_ROUTE),
+            onTap: () => Navigator.of(context).pushNamed(MyRoute.SETTING_ROUTE),
           ),
         ],
       );
