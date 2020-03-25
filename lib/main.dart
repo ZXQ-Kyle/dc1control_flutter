@@ -6,7 +6,9 @@ import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'common/api.dart';
 import 'common/global.dart';
+import 'common/socket.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,8 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    myPrint("MyApp build");
+    SocketManager().init();
+    Api.init();
     return MultiProvider(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider.value(value: ThemeModel()),

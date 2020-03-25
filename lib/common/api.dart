@@ -1,9 +1,10 @@
 import 'dart:convert';
 
+import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/response.dart';
 import 'package:dc1clientflutter/common/global.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,48 +16,50 @@ class Api {
     _options = Options(extra: {"context": context});
   }
 
-  static Dio dio = Dio(
-    BaseOptions(
-      baseUrl:
-          Global.profile.host + ":" + Global.profile.httpPort.toString() + "/",
-    ),
-  );
+  static String token;
+  static Dio dio;
+
+  static void init() {
+    dio = Dio(
+      BaseOptions(
+        baseUrl: Global.profile.host +
+            ":" +
+            Global.profile.httpPort.toString() +
+            "/",
+      ),
+    );
+    token = null;
+    dio.interceptors.add(LogInterceptor());
+  }
 
   Future<List<Dc1>> queryDc1List() async {
-    var token = base64Encode(utf8.encode(Global.profile.token));
-    Response<dynamic> response = await dio.get<dynamic>(
-      "api/queryDeviceList",
-      queryParameters: {"token": "7e8d032b5bdeef54a13f8d6cf777bd99"},
-      options: _options,
-    );
-    var myResponse = MyResponse.fromJson(jsonDecode(response.data));
-    if (myResponse.code == 200) {
-      var list = (myResponse.data as List).map((e) {
-        var dc1 = Dc1.fromJson(e);
-        return dc1;
-      }).toList();
-      return list;
+    try {
+      Response<dynamic> response = await dio.get<dynamic>(
+        "api/queryDeviceList",
+        queryParameters: {"token": getToken()},
+        options: _options,
+      );
+      var myResponse = MyResponse.fromJson(jsonDecode(response.data));
+      if (myResponse.code == 200) {
+        var list = (myResponse.data as List).map((e) {
+          var dc1 = Dc1.fromJson(e);
+          return dc1;
+        }).toList();
+        return list;
+      }
+    } catch (e) {
+      print(e);
     }
     return null;
   }
-}
 
-class LogInterceptor extends Interceptor {
-  @override
-  Future onResponse(Response response) {
-    myPrint(response.realUri.toString() + ":" + response.data.toString());
-    return super.onResponse(response);
-  }
-
-  @override
-  Future onError(DioError err) {
-    myPrint(err.response.realUri.toString() + " onError:" + err.message);
-    return super.onError(err);
-  }
-
-  @override
-  Future onRequest(RequestOptions options) {
-    myPrint("${options.baseUrl}${options.path}");
-    return super.onRequest(options);
+  String getToken() {
+    if (token == null) {
+      var content = new Utf8Encoder().convert(Global.profile.token);
+      var digest = md5.convert(content);
+      // 这里其实就是 digest.toString()
+      token = hex.encode(digest.bytes);
+    }
+    return token;
   }
 }

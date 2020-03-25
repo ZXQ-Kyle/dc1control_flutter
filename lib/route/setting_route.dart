@@ -1,3 +1,4 @@
+import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
@@ -93,11 +94,14 @@ class _SettingRouteState extends State<SettingRoute> {
                   return value.length > 0 ? null : "请输入token";
                 },
               ),
-              RaisedButton(
-                child: Text("保存"),
-                textColor: Theme.of(context).primaryTextTheme.title.color,
-                color: Theme.of(context).primaryColor,
-                onPressed: _save,
+              ConstrainedBox(
+                constraints: BoxConstraints(minWidth: double.infinity),
+                child: RaisedButton(
+                  child: Text("保存"),
+                  textColor: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryColor,
+                  onPressed: _save,
+                ),
               ),
             ],
           ),
@@ -108,11 +112,10 @@ class _SettingRouteState extends State<SettingRoute> {
 
   void _save() {
     if ((_formKey.currentState as FormState).validate()) {
-      if (!_hostController.text.startsWith("http://") ||
-          !_hostController.text.startsWith("https://")) {
-        Global.profile.host = "http://${_hostController.text}";
-      } else {
+      if (_hostController.text.startsWith("http")) {
         Global.profile.host = _hostController.text;
+      } else {
+        Global.profile.host = "http://${_hostController.text}";
       }
       Global.profile.socketPort = int.parse(_socketPortController.text);
       Global.profile.httpPort = int.parse(_httpPortController.text);
@@ -120,6 +123,7 @@ class _SettingRouteState extends State<SettingRoute> {
       Global.saveProfile();
       myPrint(Global.profile.toJson().toString());
       SocketManager().reset();
+      Api.init();
       Navigator.of(context).pop();
     } else {
       showToast("输入异常！");

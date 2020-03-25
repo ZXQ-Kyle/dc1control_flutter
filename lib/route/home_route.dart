@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/common/socket.dart';
 import 'package:dc1clientflutter/main.dart';
 import 'package:dc1clientflutter/route/item_dc1_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +20,22 @@ class HomeRoute extends StatefulWidget {
 
 class _HomeRouteState extends State<HomeRoute> {
   List<Dc1> _data;
+  StreamSubscription<DeviceChangedEvent> _listener;
 
   @override
   void initState() {
-    SocketManager().init();
+    _listener = eventBus.on<DeviceChangedEvent>().listen((event) {
+      initData();
+      myPrint("DeviceChangedEvent _listener");
+    });
     initData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _listener.cancel();
+    super.dispose();
   }
 
   void initData() {

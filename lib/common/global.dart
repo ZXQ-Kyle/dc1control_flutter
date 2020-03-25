@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dc1clientflutter/bean/profile.dart';
+import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,7 +34,6 @@ class Global {
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
 
   static init() async {
-    myPrint("Global init start");
     _sp = await SharedPreferences.getInstance();
     var profileStr = _sp.get("profile");
     if (profileStr != null) {
@@ -46,7 +46,6 @@ class Global {
     } else {
       profile = Profile();
     }
-    myPrint("Global init end");
   }
 
   static saveProfile() {

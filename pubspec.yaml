@@ -30,6 +30,7 @@ dependencies:
   fluttertoast: ^3.0.3
   flukit: ^1.0.2
   flutter_socket_plugin: ^1.0.1
+  event_bus: ^1.1.1
 
 dev_dependencies:
   flutter_test:

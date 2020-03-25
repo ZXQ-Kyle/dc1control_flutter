@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
 
@@ -47,8 +48,12 @@ class SocketManager {
   }
 
   void onReceiver(List<int> data) {
-    var decode = utf8.decode(data);
-    print('onReceiver listen :$decode');
+    String decode = utf8.decode(data);
+    if ("deviceChanged" == decode.trim()) {
+      //重新获取设备列表
+      myPrint("DeviceChangedEvent fire");
+      eventBus.fire(DeviceChangedEvent());
+    }
   }
 
   void errorHandler(error, StackTrace trace) {
