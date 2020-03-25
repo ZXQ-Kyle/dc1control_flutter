@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:dc1clientflutter/bean/profile.dart';
 import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
+import 'package:dc1clientflutter/common/socket.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api_service.dart';
 
 const _themes = <MaterialColor>[
   Colors.teal,
@@ -46,6 +49,8 @@ class Global {
     } else {
       profile = Profile();
     }
+    SocketManager().init();
+    ApiService().init();
   }
 
   static saveProfile() {

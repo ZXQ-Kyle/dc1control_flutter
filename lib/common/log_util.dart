@@ -1,4 +1,4 @@
 
-void myPrint(String msg) {
-  print("---flutter---:$msg");
+void myPrint(Object msg) {
+  print("---flutter---:${msg.toString()}");
 }

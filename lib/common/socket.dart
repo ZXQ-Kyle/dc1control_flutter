@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
+import 'package:provider/provider.dart';
 
 import 'log_util.dart';
 

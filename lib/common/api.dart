@@ -1,65 +1,28 @@
-import 'dart:convert';
-
-import 'package:convert/convert.dart';
-import 'package:crypto/crypto.dart';
 import 'package:dc1clientflutter/bean/dc1.dart';
-import 'package:dc1clientflutter/bean/response.dart';
-import 'package:dc1clientflutter/common/global.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart';
+import 'package:dc1clientflutter/common/api_service.dart';
+import 'package:dc1clientflutter/common/log_util.dart';
 
 class Api {
-  BuildContext context;
-  Options _options;
+  //私有构造函数
+  Api._internal();
 
-  Api([this.context]) {
-    _options = Options(extra: {"context": context});
-  }
+  //保存单例
+  static Api _singleton = new Api._internal();
 
-  static String token;
-  static Dio dio;
+  //工厂构造函数
+  factory Api() => _singleton;
 
-  static void init() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: Global.profile.host +
-            ":" +
-            Global.profile.httpPort.toString() +
-            "/",
-      ),
-    );
-    token = null;
-    dio.interceptors.add(LogInterceptor());
-  }
-
-  Future<List<Dc1>> queryDc1List() async {
-    try {
-      Response<dynamic> response = await dio.get<dynamic>(
-        "api/queryDeviceList",
-        queryParameters: {"token": getToken()},
-        options: _options,
-      );
-      var myResponse = MyResponse.fromJson(jsonDecode(response.data));
-      if (myResponse.code == 200) {
+  void queryDc1List(Function onSuccess) {
+    ApiService().request("api/queryDeviceList", onSuccess: (myResponse) {
+      if (myResponse.data != null) {
         var list = (myResponse.data as List).map((e) {
           var dc1 = Dc1.fromJson(e);
           return dc1;
         }).toList();
-        return list;
+        onSuccess(list);
+      } else {
+        onSuccess(null);
       }
-    } catch (e) {
-      print(e);
-    }
-    return null;
-  }
-
-  String getToken() {
-    if (token == null) {
-      var content = new Utf8Encoder().convert(Global.profile.token);
-      var digest = md5.convert(content);
-      // 这里其实就是 digest.toString()
-      token = hex.encode(digest.bytes);
-    }
-    return token;
+    }, onFailed: null);
   }
 }

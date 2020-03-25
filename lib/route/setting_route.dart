@@ -1,4 +1,4 @@
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/common/api_service.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
@@ -123,7 +123,7 @@ class _SettingRouteState extends State<SettingRoute> {
       Global.saveProfile();
       myPrint(Global.profile.toJson().toString());
       SocketManager().reset();
-      Api.init();
+      ApiService().init();
       Navigator.of(context).pop();
     } else {
       showToast("输入异常！");
