@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/route/home_route.dart';
+import 'package:dc1clientflutter/route/home/edit_device_name_route.dart';
+import 'package:dc1clientflutter/route/home/home_route.dart';
 import 'package:dc1clientflutter/route/setting_route.dart';
 import 'package:dc1clientflutter/route/theme_route.dart';
 import 'package:dc1clientflutter/state/change_notifier.dart';
@@ -10,9 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'common/api_service.dart';
 import 'common/global.dart';
-import 'common/socket.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +42,7 @@ class MyApp extends StatelessWidget {
           routes: {
             MyRoute.THEME_ROUTE: (context) => ThemeRoute(),
             MyRoute.SETTING_ROUTE: (context) => SettingRoute(),
+            MyRoute.EDIT_DEVICE_NAME_ROUTE: (context) => EditDeviceNameRoute(),
           },
         );
       }),
@@ -53,4 +53,5 @@ class MyApp extends StatelessWidget {
 class MyRoute {
   static const String THEME_ROUTE = "ThemeRoute";
   static const String SETTING_ROUTE = "SettingRoute";
+  static const String EDIT_DEVICE_NAME_ROUTE = "EDIT_DEVICE_NAME_ROUTE";
 }

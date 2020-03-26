@@ -1,9 +1,11 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'home_route.dart';
 
 class Dc1ItemWidget extends StatefulWidget {
-  Dc1 _dc1;
+  final Dc1 _dc1;
 
   Dc1ItemWidget(this._dc1) : super(key: ValueKey(_dc1.id));
 
@@ -38,6 +40,9 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                   Icons.edit,
                   color: primaryColor,
                 ),
+                onTap: (){
+
+                },
               )
             ],
           ),
@@ -71,7 +76,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Expanded(
                 flex: 1,
                 child: FlatButton(
-                  onPressed: (){},
+                  onPressed: () {},
                   textColor: primaryColor,
                   child: Text(
                     "倒计时",
@@ -96,7 +101,15 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
         Switch(
             activeColor: Theme.of(context).primaryColor,
             value: widget._dc1.status.split("")[pos] == "1",
-            onChanged: (value) {}),
+            onChanged: (value) {
+              var replaceRange = widget._dc1.status
+                  .replaceRange(pos, pos + 1, value ? "1" : "0");
+              setState(() {
+                widget._dc1.status = replaceRange;
+              });
+              Provider.of<DeviceListModel>(context, listen: false)
+                  .setDeviceStatus(widget._dc1.id, widget._dc1.status);
+            }),
       ],
     );
   }

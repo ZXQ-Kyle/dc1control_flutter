@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/event_bus.dart';
+import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,10 @@ class DeviceListModel extends ChangeNotifier {
 
   DeviceListModel() {
     _listener = eventBus.on<DeviceChangedEvent>().listen((value) {
+      myPrint("home_route.dart 21:DeviceListModel()");
       refresh();
     });
+    myPrint("home_route.dart 24:DeviceListModel()");
     refresh();
   }
 
@@ -36,6 +39,14 @@ class DeviceListModel extends ChangeNotifier {
     });
   }
 
+  void setDeviceStatus(String id, String status) {
+    Api().setDeviceStatus(id, status, (value) {
+      showToast("状态切换失败");
+      myPrint("home_route.dart 45:setDeviceStatus()");
+      refresh();
+    });
+  }
+
   get data {
     return _list;
   }
@@ -46,9 +57,12 @@ class DeviceListModel extends ChangeNotifier {
 }
 
 class HomeRoute extends StatelessWidget {
+  final DeviceListModel _deviceListModel = DeviceListModel();
+
   Widget build(BuildContext context) {
+    myPrint("HomeRoute build");
     return ChangeNotifierProvider.value(
-      value: DeviceListModel(),
+      value: _deviceListModel,
       child: Scaffold(
         appBar: AppBar(
           title: Text("设备列表"),

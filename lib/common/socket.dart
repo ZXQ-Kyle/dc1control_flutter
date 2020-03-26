@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
-import 'package:provider/provider.dart';
 
 import 'log_util.dart';
 
@@ -40,9 +39,9 @@ class SocketManager {
     });
   }
 
-  void reset() {
+  void reset() async {
     if (_socket != null) {
-      _socket.destroy();
+      await _socket.close();
       _socket = null;
     }
     init();
@@ -62,8 +61,7 @@ class SocketManager {
   }
 
   void send(String message) {
-    _socket?.write(message);
-    _socket?.flush();
+    _socket?.add(utf8.encode(message));
   }
 
   void heartBeat() {

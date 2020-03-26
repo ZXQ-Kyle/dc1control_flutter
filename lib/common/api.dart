@@ -1,6 +1,5 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/common/api_service.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
 
 class Api {
   //私有构造函数
@@ -23,6 +22,13 @@ class Api {
       } else {
         onSuccess(null);
       }
-    }, onFailed: null);
+    });
+  }
+
+  void setDeviceStatus(
+      String deviceId, String status, Function onFailed) {
+    Map<String,String> map = {"deviceId": deviceId, "status": status};
+    ApiService().request("api/setDeviceStatus",
+        params: map, onFailed: onFailed);
   }
 }
