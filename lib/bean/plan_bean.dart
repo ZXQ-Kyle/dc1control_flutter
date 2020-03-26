@@ -4,6 +4,20 @@ part 'plan_bean.g.dart';
 
 @JsonSerializable()
 class PlanBean extends Object {
+  static const List<String> WEEK_DAY_CN = [
+    "周一",
+    "周二",
+    "周三",
+    "周四",
+    "周五",
+    "周六",
+    "周日"
+  ];
+
+  static const String REPEAT_ONCE = "repeat_once";
+  static const String REPEAT_EVERYDAY = "repeat_everyday";
+  static const String REPEAT_AT_FIXED_RATE = "repeat_at_fixed_rate";
+
   @JsonKey(name: 'id')
   String id;
 

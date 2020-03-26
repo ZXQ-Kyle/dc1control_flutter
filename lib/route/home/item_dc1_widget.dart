@@ -1,4 +1,5 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
+import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -59,7 +60,20 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
             ),
           ),
           Text("电压：${dc1.v}   电流：${dc1.i}   功率：${dc1.p}"),
-          Text("从${formatTime()}至今用电量为${dc1.totalPower / 1000}kwh"),
+          GestureDetector(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text("从${formatTime()}至今用电量为${dc1.totalPower / 1000}kwh"),
+            ),
+            onTap: () {
+              showResetDialog(context, dc1);
+//              showModalBottomSheet(
+//                  context: context,
+//                  builder: (context) {
+//                    return;
+//                  });
+            },
+          ),
           buildSwitch(0),
           buildSwitch(1),
           buildSwitch(2),
@@ -69,7 +83,8 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Expanded(
                 flex: 1,
                 child: FlatButton(
-                  onPressed: () {},
+                  onPressed: () =>
+                      Navigator.pushNamed(context, MyRoute.PLAN_ROUTE,arguments: dc1),
                   textColor: primaryColor,
                   child: Text(
                     "计划",
@@ -92,6 +107,53 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
           )
         ],
       ),
+    );
+  }
+
+  Future showResetDialog(BuildContext context, Dc1 dc1) {
+    String tip = "";
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("提示"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("用电量每增加0.05kwh更新数据,\n点击重置重新开始计算。"),
+              tip.isEmpty
+                  ? Container()
+                  : Text(tip,
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                      textAlign: TextAlign.start),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton.icon(
+              onPressed: () {
+                Api().resetPower(dc1.id, (onSuccess) => Navigator.pop(context),
+                    (onFailed) {
+                  tip = "重置失败：${onFailed.message}";
+                  (context as Element).markNeedsBuild();
+                });
+              },
+              icon: Icon(
+                Icons.check,
+                color: Theme.of(context).primaryColor,
+              ),
+              label: Text("重置"),
+            ),
+            FlatButton.icon(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icon(
+                Icons.close,
+                color: Colors.grey,
+              ),
+              label: Text("取消"),
+            ),
+          ],
+        );
+      },
     );
   }
 

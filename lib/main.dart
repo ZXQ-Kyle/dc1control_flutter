@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/route/home/edit_device_name_route.dart';
 import 'package:dc1clientflutter/route/home/home_route.dart';
+import 'package:dc1clientflutter/route/plan/add_plan_route.dart';
+import 'package:dc1clientflutter/route/plan/plan_route.dart';
 import 'package:dc1clientflutter/route/setting_route.dart';
 import 'package:dc1clientflutter/route/theme_route.dart';
 import 'package:dc1clientflutter/state/change_notifier.dart';
@@ -43,6 +45,8 @@ class MyApp extends StatelessWidget {
             MyRoute.THEME_ROUTE: (context) => ThemeRoute(),
             MyRoute.SETTING_ROUTE: (context) => SettingRoute(),
             MyRoute.EDIT_DEVICE_NAME_ROUTE: (context) => EditDeviceNameRoute(),
+            MyRoute.PLAN_ROUTE: (context) => PlanRoute(),
+            MyRoute.ADD_PLAN_ROUTE: (context) => AddPlanRoute(),
           },
         );
       }),
@@ -53,5 +57,7 @@ class MyApp extends StatelessWidget {
 class MyRoute {
   static const String THEME_ROUTE = "ThemeRoute";
   static const String SETTING_ROUTE = "SettingRoute";
-  static const String EDIT_DEVICE_NAME_ROUTE = "EDIT_DEVICE_NAME_ROUTE";
+  static const String EDIT_DEVICE_NAME_ROUTE = "EditDeviceNameRoute";
+  static const String PLAN_ROUTE = "PlanRoute";
+  static const String ADD_PLAN_ROUTE = "AddPlanRoute";
 }

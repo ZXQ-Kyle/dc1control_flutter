@@ -49,7 +49,7 @@ class _EditDeviceNameRouteState extends State<EditDeviceNameRoute> {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.only(top: 10, left: 20, right: 20),
+        padding: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
         constraints: BoxConstraints(minWidth: double.infinity),
         child: SingleChildScrollView(
           child: Column(

@@ -5,11 +5,11 @@ import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'item_dc1_widget.dart';
+import 'my_drawer.dart';
 
 class DeviceListModel extends ChangeNotifier {
   List<Dc1> _list;
@@ -32,7 +32,6 @@ class DeviceListModel extends ChangeNotifier {
 
   void refresh() {
     Api().queryDc1List((value) {
-      myPrint(value);
       _list = value;
       notifyListeners();
     });
@@ -82,53 +81,5 @@ class HomeRoute extends StatelessWidget {
         drawer: MyDrawer(),
       ),
     );
-  }
-}
-
-class MyDrawer extends StatelessWidget {
-  const MyDrawer({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildHeader(),
-            Expanded(child: _buildMenus()), // 构建抽屉菜单
-          ],
-        ),
-      ),
-    );
-  }
-
-  _buildHeader() {
-    return Image.asset(
-      "img/head.jpg",
-      height: 180,
-      fit: BoxFit.cover,
-    );
-  }
-
-  _buildMenus() {
-    return Builder(builder: (context) {
-      return ListView(
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(Icons.color_lens),
-            title: Text("主题"),
-            onTap: () => Navigator.of(context).pushNamed(MyRoute.THEME_ROUTE),
-          ),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text("设置"),
-            onTap: () => Navigator.of(context).pushNamed(MyRoute.SETTING_ROUTE),
-          ),
-        ],
-      );
-    });
   }
 }
