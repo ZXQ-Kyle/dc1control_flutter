@@ -9,7 +9,6 @@ import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-
 import 'item_dc1_widget.dart';
 
 class DeviceListModel extends ChangeNotifier {

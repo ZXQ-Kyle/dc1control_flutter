@@ -1,7 +1,9 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
+import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+
 import 'home_route.dart';
 
 class Dc1ItemWidget extends StatefulWidget {
@@ -40,8 +42,10 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                   Icons.edit,
                   color: primaryColor,
                 ),
-                onTap: (){
-
+                onTap: () {
+                  Navigator.of(context).pushNamed(
+                      MyRoute.EDIT_DEVICE_NAME_ROUTE,
+                      arguments: dc1);
                 },
               )
             ],

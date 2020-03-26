@@ -25,10 +25,17 @@ class Api {
     });
   }
 
-  void setDeviceStatus(
-      String deviceId, String status, Function onFailed) {
-    Map<String,String> map = {"deviceId": deviceId, "status": status};
-    ApiService().request("api/setDeviceStatus",
-        params: map, onFailed: onFailed);
+  void setDeviceStatus(String deviceId, String status, OnFailed onFailed) {
+    Map<String, String> map = {"deviceId": deviceId, "status": status};
+    ApiService()
+        .request("api/setDeviceStatus", params: map, onFailed: onFailed);
+  }
+
+  void updateDeviceName(String deviceId, List<String> nameList,
+      OnSuccess onSuccess, OnFailed onFailed) {
+    var reduce = nameList.reduce((value, element) => value + "," + element);
+    Map<String, String> map = {"deviceId": deviceId, "names": reduce};
+    ApiService().request("api/updateNames",
+        params: map, onFailed: onFailed, onSuccess: onSuccess);
   }
 }
