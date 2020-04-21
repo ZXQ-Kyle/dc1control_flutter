@@ -59,7 +59,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               fit: BoxFit.cover,
             ),
           ),
-          Text("电压：${dc1.v}   电流：${dc1.i}   功率：${dc1.p}"),
+          Text("电压：${dc1.v}V   电流：${dc1.i}mA   功率：${dc1.p}W"),
           GestureDetector(
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 8),

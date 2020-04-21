@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dc1clientflutter/bean/profile.dart';
-import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/common/socket.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class Global {
   /// 是否为release版
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
 
-  static init() async {
+  static Future<void> init() async {
     _sp = await SharedPreferences.getInstance();
     var profileStr = _sp.get("profile");
     if (profileStr != null) {
@@ -46,7 +45,9 @@ class Global {
       } catch (e) {
         print(e);
       }
-    } else {
+    }
+
+    if (profile == null) {
       profile = Profile();
     }
     SocketManager().init();

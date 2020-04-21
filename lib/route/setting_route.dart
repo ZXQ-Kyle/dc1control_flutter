@@ -3,8 +3,10 @@ import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/common/socket.dart';
+import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class SettingRoute extends StatefulWidget {
   @override
@@ -120,10 +122,10 @@ class _SettingRouteState extends State<SettingRoute> {
       Global.profile.socketPort = int.parse(_socketPortController.text);
       Global.profile.httpPort = int.parse(_httpPortController.text);
       Global.profile.token = _tokenController.text;
-      Global.saveProfile();
       myPrint(Global.profile.toJson().toString());
       SocketManager().reset();
       ApiService().init();
+      Provider.of<HostModel>(context, listen: false).notifyListeners();
       Navigator.of(context).pop();
     } else {
       showToast("输入异常！");

@@ -1,11 +1,13 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
 import 'package:dc1clientflutter/common/api.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/main.dart';
+import 'package:dc1clientflutter/common/funs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+
+import '../../main.dart';
 
 class PlanModel extends ChangeNotifier {
   List<PlanBean> _data;
@@ -26,7 +28,7 @@ class PlanModel extends ChangeNotifier {
     _data = list;
   }
 
-  Future<void> refresh() {
+  Future<bool> refresh() async {
     Api().queryPlanList(_dc1?.id, (onSuccess) {
       _data = onSuccess;
       notifyListeners();
@@ -36,6 +38,11 @@ class PlanModel extends ChangeNotifier {
 
   enablePlan(String planId, bool enable) {
     Api().enablePlan(planId, enable, (onFailed) => refresh());
+    notifyListeners();
+  }
+
+  void delete(int index) {
+    _data.removeAt(index);
     notifyListeners();
   }
 }
@@ -60,18 +67,20 @@ class _PlanRouteState extends State<PlanRoute> {
           title: Text("计划列表"),
         ),
         body: RefreshIndicator(
-            child: Consumer<PlanModel>(builder: (context, planModel, child) {
-              return ListView.builder(
-                  itemCount: planModel.count,
-                  itemBuilder: (context, index) {
-                    return planWidget(index);
-                  });
-            }),
-            onRefresh: () => _planModel.refresh()),
+          color: Theme.of(context).primaryColor,
+          child: Consumer<PlanModel>(builder: (context, planModel, child) {
+            return ListView.builder(
+                itemCount: planModel.count,
+                itemBuilder: (context, index) {
+                  return planWidget(index);
+                });
+          }),
+          onRefresh: () => _planModel.refresh(),
+        ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
-          onPressed: () =>
-              Navigator.of(context).pushNamed(MyRoute.ADD_PLAN_ROUTE),
+          onPressed: () => Navigator.of(context)
+              .pushNamed(MyRoute.ADD_PLAN_ROUTE, arguments: _dc1),
           child: Icon(Icons.add),
         ),
       ),
@@ -80,72 +89,102 @@ class _PlanRouteState extends State<PlanRoute> {
 
   Widget planWidget(int index) {
     var plan = _planModel._data[index];
-    return IntrinsicHeight(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                    color: plan.command == "0"
-                        ? Color.fromARGB(10, 104, 180, 131)
-                        : Color.fromARGB(10, 255, 100, 100)),
-                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                alignment: Alignment.center,
-                width: 40,
-                height: 40,
-                child: Text(
-                  formatName(_dc1.nameList[int.parse(plan.switchIndex)]),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  style: TextStyle(
-                      fontSize: 12,
+    return InkWell(
+      onTap: () async {
+        var delete = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("删除定时"),
+                actions: <Widget>[
+                  FlatButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text("取消")),
+                  FlatButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text("确定")),
+                ],
+              );
+            });
+        if (delete) {
+          Api().deletePlan(plan.id, (onSuccess) {
+            _planModel.delete(index);
+          }, (onFailed) {
+            showToast("删除失败");
+          });
+        }
+      },
+      child: IntrinsicHeight(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
                       color: plan.command == "0"
-                          ? Color.fromARGB(255, 104, 180, 131)
-                          : Color.fromARGB(255, 255, 100, 100)),
+                          ? Color.fromARGB(10, 104, 180, 131)
+                          : Color.fromARGB(10, 255, 100, 100)),
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  alignment: Alignment.center,
+                  width: 40,
+                  height: 40,
+                  child: Text(
+                    formatName(_dc1.nameList[int.parse(plan.switchIndex) + 1]),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: plan.command == "0"
+                            ? Color.fromARGB(255, 104, 180, 131)
+                            : Color.fromARGB(255, 255, 100, 100)),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("触发时间：${plan.triggerTime}"),
-                    DefaultTextStyle(
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: plan.command == "0"
-                              ? Color.fromARGB(255, 104, 180, 131)
-                              : Color.fromARGB(255, 255, 100, 100)),
-                      child: Row(
-                        children: <Widget>[
-                          Text(plan.command == "0" ? "关" : "开"),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Text("|"),
-                          ),
-                          Text("周期：${getRepeatDesc(plan)}"),
-                        ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text("触发时间：${plan.triggerTime}"),
+                      DefaultTextStyle(
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: plan.command == "0"
+                                ? Color.fromARGB(255, 104, 180, 131)
+                                : Color.fromARGB(255, 255, 100, 100)),
+                        child: Row(
+                          children: <Widget>[
+                            Text(plan.command == "0" ? "关" : "开"),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Text("|"),
+                            ),
+                            SingleChildScrollView(
+                              child: Text(
+                                "周期：${getRepeatDesc(plan)}",
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Switch(
-                  value: plan.enable,
-                  activeColor: Theme.of(context).primaryColor,
-                  onChanged: (value) {
-                    plan.enable = value;
-                    _planModel.enablePlan(plan.id + "55", value);
-                  }),
-            ],
-          ),
-          Container(
-            color: Colors.grey[200],
-            height: 1,
-          ),
-        ],
+                Switch(
+                    value: plan.enable,
+                    activeColor: Theme.of(context).primaryColor,
+                    onChanged: (value) {
+                      plan.enable = value;
+                      _planModel.enablePlan(plan.id + "55", value);
+                    }),
+              ],
+            ),
+            Container(
+              color: Colors.grey[200],
+              height: 1,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -156,7 +195,6 @@ class _PlanRouteState extends State<PlanRoute> {
     } else if (name.length > 2) {
       name = name.replaceRange(2, 2, "\n");
     }
-    myPrint(name);
     return name;
   }
 

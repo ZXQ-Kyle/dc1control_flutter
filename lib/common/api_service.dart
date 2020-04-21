@@ -4,7 +4,6 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dc1clientflutter/bean/response.dart';
 import 'package:dc1clientflutter/common/global.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dio/dio.dart';
 
 typedef OnSuccess = void Function(MyResponse myResponse);
@@ -24,6 +23,9 @@ class ApiService {
   Dio _dio;
 
   void init() {
+    if (Global.profile?.host == null) {
+      return;
+    }
     _dio = Dio(
       BaseOptions(
         baseUrl: Global.profile.host +
@@ -34,15 +36,17 @@ class ApiService {
     );
     token = null;
 //    if (Global.isRelease) {
-      _dio.interceptors.add(LogInterceptor());
+    _dio.interceptors.add(LogInterceptor());
 //    }
   }
 
-  void request(String path,
+  void request<T>(String path,
       {Map<String, String> params,
       OnSuccess onSuccess,
       OnFailed onFailed,
-      CancelToken token}) async {
+      CancelToken cancelToken,
+      bool isPost = false,
+      T body}) async {
     if (params != null && params.isNotEmpty) {
       print("<net> params :" + params.toString());
     }
@@ -56,11 +60,21 @@ class ApiService {
         params = new Map();
       }
       params["token"] = getToken();
-      response = await _dio.get(
-        path,
-        queryParameters: params,
-        cancelToken: token,
-      );
+
+      if (isPost) {
+        response = await _dio.post(
+          path,
+          data: body,
+          queryParameters: params,
+          cancelToken: cancelToken,
+        );
+      } else {
+        response = await _dio.get(
+          path,
+          queryParameters: params,
+          cancelToken: cancelToken,
+        );
+      }
 
       statusCode = response.statusCode;
 

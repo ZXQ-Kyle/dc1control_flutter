@@ -8,6 +8,7 @@ import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+
 import 'item_dc1_widget.dart';
 import 'my_drawer.dart';
 
@@ -30,11 +31,12 @@ class DeviceListModel extends ChangeNotifier {
     super.dispose();
   }
 
-  void refresh() {
+  Future<void> refresh() {
     Api().queryDc1List((value) {
       _list = value;
       notifyListeners();
     });
+    return null;
   }
 
   void setDeviceStatus(String id, String status) {
@@ -65,18 +67,21 @@ class HomeRoute extends StatelessWidget {
         appBar: AppBar(
           title: Text("设备列表"),
         ),
-        body: Container(
-          decoration: BoxDecoration(color: Colors.grey[200]),
-          child: Consumer<DeviceListModel>(
-            builder: (context, deviceListModel, child) {
-              return ListView.builder(
-                itemCount: deviceListModel.count,
-                itemBuilder: (BuildContext context, int index) {
-                  return Dc1ItemWidget(deviceListModel.data[index]);
-                },
-              );
-            },
+        body: RefreshIndicator(
+          child: Container(
+            decoration: BoxDecoration(color: Colors.grey[200]),
+            child: Consumer<DeviceListModel>(
+              builder: (context, deviceListModel, child) {
+                return ListView.builder(
+                  itemCount: deviceListModel.count,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Dc1ItemWidget(deviceListModel.data[index]);
+                  },
+                );
+              },
+            ),
           ),
+          onRefresh: () async => _deviceListModel.refresh(),
         ),
         drawer: MyDrawer(),
       ),

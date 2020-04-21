@@ -67,4 +67,14 @@ class Api {
         params: {"planId": planId, "enable": enable.toString()},
         onFailed: onFailed);
   }
+
+  void addPlan(PlanBean planBean, OnSuccess onSuccess, OnFailed onFailed) {
+    ApiService().request("api/addPlan",
+        isPost: true, body: planBean, onSuccess: onSuccess, onFailed: onFailed);
+  }
+
+  void deletePlan(String planId, OnSuccess onSuccess, OnFailed onFailed) {
+    ApiService().request("api/deletePlan",
+        params: {"planId": planId}, onSuccess: onSuccess, onFailed: onFailed);
+  }
 }

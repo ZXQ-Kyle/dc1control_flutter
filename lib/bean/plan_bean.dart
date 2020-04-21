@@ -17,6 +17,7 @@ class PlanBean extends Object {
   static const String REPEAT_ONCE = "repeat_once";
   static const String REPEAT_EVERYDAY = "repeat_everyday";
   static const String REPEAT_AT_FIXED_RATE = "repeat_at_fixed_rate";
+  static const String REPEAT_CUSTOM = "repeat_custom";
 
   @JsonKey(name: 'id')
   String id;
@@ -69,4 +70,11 @@ class PlanBean extends Object {
       _$PlanBeanFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$PlanBeanToJson(this);
+
+  @override
+  String toString() {
+    return 'PlanBean{id: $id, deviceId: $deviceId, deviceName: $deviceName, updateTime: $updateTime, status: $status, command: $command, switchIndex: $switchIndex, triggerTime: $triggerTime, repeat: $repeat, repeatData: $repeatData, enable: $enable}';
+  }
+
+
 }

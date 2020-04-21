@@ -34,9 +34,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider.value(value: ThemeModel()),
+        ChangeNotifierProvider.value(value: HostModel()),
       ],
-      child: Consumer<ThemeModel>(
-          builder: (BuildContext context, ThemeModel themeModel, Widget child) {
+      child: Consumer2<ThemeModel, HostModel>(builder: (BuildContext context,
+          ThemeModel themeModel, HostModel hostModel, Widget child) {
         return MaterialApp(
           title: "dc1控制端",
           theme: ThemeData(primaryColor: themeModel.currentTheme),
