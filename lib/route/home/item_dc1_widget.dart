@@ -83,8 +83,9 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Expanded(
                 flex: 1,
                 child: FlatButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, MyRoute.PLAN_ROUTE,arguments: dc1),
+                  onPressed: () => Navigator.pushNamed(
+                      context, MyRoute.PLAN_ROUTE,
+                      arguments: dc1),
                   textColor: primaryColor,
                   child: Text(
                     "计划",
@@ -95,7 +96,10 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Expanded(
                 flex: 1,
                 child: FlatButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, MyRoute.COUNT_DOWN_ROUTE,
+                        arguments: widget._dc1);
+                  },
                   textColor: primaryColor,
                   child: Text(
                     "倒计时",

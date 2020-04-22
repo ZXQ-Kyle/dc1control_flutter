@@ -4,6 +4,7 @@ import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/route/home/edit_device_name_route.dart';
 import 'package:dc1clientflutter/route/home/home_route.dart';
 import 'package:dc1clientflutter/route/plan/add_plan_route.dart';
+import 'package:dc1clientflutter/route/plan/count_down_route.dart';
 import 'package:dc1clientflutter/route/plan/plan_route.dart';
 import 'package:dc1clientflutter/route/setting_route.dart';
 import 'package:dc1clientflutter/route/theme_route.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
             MyRoute.EDIT_DEVICE_NAME_ROUTE: (context) => EditDeviceNameRoute(),
             MyRoute.PLAN_ROUTE: (context) => PlanRoute(),
             MyRoute.ADD_PLAN_ROUTE: (context) => AddPlanRoute(),
+            MyRoute.COUNT_DOWN_ROUTE: (context) => CountDownRoute(),
           },
         );
       }),
@@ -61,4 +63,5 @@ class MyRoute {
   static const String EDIT_DEVICE_NAME_ROUTE = "EditDeviceNameRoute";
   static const String PLAN_ROUTE = "PlanRoute";
   static const String ADD_PLAN_ROUTE = "AddPlanRoute";
+  static const String COUNT_DOWN_ROUTE = "CountDownRoute";
 }
