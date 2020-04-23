@@ -36,14 +36,29 @@ class MyDrawer extends StatelessWidget {
       return ListView(
         children: <Widget>[
           ListTile(
-            leading: const Icon(Icons.color_lens),
+            leading: Icon(
+              Icons.color_lens,
+              color: Theme.of(context).primaryColor,
+            ),
             title: Text("主题"),
             onTap: () => Navigator.of(context).pushNamed(MyRoute.THEME_ROUTE),
           ),
           ListTile(
-            leading: const Icon(Icons.language),
+            leading: Icon(
+              Icons.settings,
+              color: Theme.of(context).primaryColor,
+            ),
             title: Text("设置"),
             onTap: () => Navigator.of(context).pushNamed(MyRoute.SETTING_ROUTE),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.language,
+              color: Theme.of(context).primaryColor,
+            ),
+            title: Text("网络配置"),
+            onTap: () =>
+                Navigator.of(context).pushNamed(MyRoute.WIFI_CONFIG_ROUTE),
           ),
         ],
       );

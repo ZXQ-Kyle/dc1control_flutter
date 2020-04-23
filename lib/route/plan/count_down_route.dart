@@ -21,6 +21,15 @@ class _CountDownRouteState extends State<CountDownRoute> {
   int _initHour = 0;
   int _initMinute = 10;
   String _switchName;
+  FixedExtentScrollController _hourController;
+  FixedExtentScrollController _minuteController;
+
+  @override
+  void initState() {
+    _hourController = FixedExtentScrollController(initialItem: _initHour);
+    _minuteController = FixedExtentScrollController(initialItem: _initMinute);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +48,7 @@ class _CountDownRouteState extends State<CountDownRoute> {
       constraints: BoxConstraints(minWidth: double.infinity),
       color: Colors.grey[200],
     );
-    var _hourController = FixedExtentScrollController(initialItem: _initHour);
-    var _minuteController =
-        FixedExtentScrollController(initialItem: _initMinute);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("倒计时"),
@@ -78,7 +85,9 @@ class _CountDownRouteState extends State<CountDownRoute> {
                     selectTextStyle: select,
                     unSelectTextStyle: unSelect,
                     onValueChanged: (s) {
-                      _initHour = s;
+                      setState(() {
+                        _initHour = s;
+                      });
                     },
                     minValue: 0,
                     maxValue: 23,
@@ -97,7 +106,9 @@ class _CountDownRouteState extends State<CountDownRoute> {
                     selectTextStyle: select,
                     unSelectTextStyle: unSelect,
                     onValueChanged: (s) {
-                      _initMinute = s;
+                      setState(() {
+                        _initMinute = s;
+                      });
                     },
                     minValue: 0,
                     maxValue: 59,
@@ -123,60 +134,11 @@ class _CountDownRouteState extends State<CountDownRoute> {
               ),
               padding: EdgeInsets.only(top: 24, left: 12, right: 12),
             ),
-            InkWell(
-              onTap: () {
-                _initHour = 0;
-                _initMinute = 15;
-                _hourController.animateToItem(0,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-                _minuteController.animateToItem(15,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-              },
-              child: Container(
-                width: double.infinity,
-                child: Text("15分钟"),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              ),
-            ),
+            _buildCommonUseItem("15分钟", minute: 15),
             lineLightGrey,
-            InkWell(
-              onTap: () {
-                _initHour = 0;
-                _initMinute = 30;
-                _hourController.jumpToItem(1);
-                _hourController.animateToItem(0,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-                _minuteController.animateToItem(30,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-              },
-              child: Container(
-                width: double.infinity,
-                child: Text("30分钟"),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              ),
-            ),
+            _buildCommonUseItem("30分钟", minute: 30),
             lineLightGrey,
-            InkWell(
-              onTap: () {
-                _initHour = 1;
-                _initMinute = 0;
-                _hourController.animateToItem(1,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-                _minuteController.animateToItem(0,
-                    duration: Duration(milliseconds: 200),
-                    curve: Curves.linear);
-              },
-              child: Container(
-                width: double.infinity,
-                child: Text("1小时"),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              ),
-            ),
+            _buildCommonUseItem("1小时", hour: 1),
             lineLightGrey,
             Expanded(child: Container()),
             InkWell(
@@ -210,6 +172,10 @@ class _CountDownRouteState extends State<CountDownRoute> {
     );
   }
 
+  bool _checkCommonUseState({int hour = 0, int minute = 0}) {
+    return _initHour == hour && _initMinute == minute;
+  }
+
   void _save() {
     if (_dc1 == null) {
       showToast("无法获取到设备id");
@@ -241,5 +207,43 @@ class _CountDownRouteState extends State<CountDownRoute> {
     }, (onFailed) {
       showToast("添加关闭任务失败，请手动关闭开关");
     });
+  }
+
+  Widget _buildCommonUseItem(String text, {int hour = 0, int minute = 0}) {
+    var isCurrent = _checkCommonUseState(hour: hour, minute: minute);
+    return InkWell(
+      onTap: () {
+        _hourController.animateToItem(hour,
+            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+        _minuteController.animateToItem(minute,
+            duration: const Duration(milliseconds: 200), curve: Curves.linear);
+      },
+      child: Container(
+        width: double.infinity,
+        child: Row(
+          children: <Widget>[
+            isCurrent
+                ? Container(
+                    child: Icon(
+                      Icons.send,
+                      size:10,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    padding:const EdgeInsets.only(right: 2),
+                  )
+                : Container(),
+            Text(
+              text,
+              style: TextStyle(
+                  color: !isCurrent
+                      ? Colors.black
+                      : Theme.of(context).primaryColor),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.only(
+            left: isCurrent ? 0 : 12, top: 16, right: 12, bottom: 16),
+      ),
+    );
   }
 }
