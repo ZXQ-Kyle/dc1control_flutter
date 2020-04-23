@@ -58,7 +58,8 @@ class _CountDownRouteState extends State<CountDownRoute> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text("说明"),
+            Text(
+                "说明：这是一个关闭倒计时，如果当前开关是关闭状态，则会打开这个开关，然后添加一个倒计时关闭计划，添加的计划可到计划页面查看"),
             Container(
               height: 1,
               constraints: BoxConstraints(minWidth: double.infinity),
@@ -226,10 +227,10 @@ class _CountDownRouteState extends State<CountDownRoute> {
                 ? Container(
                     child: Icon(
                       Icons.send,
-                      size:10,
+                      size: 10,
                       color: Theme.of(context).primaryColor,
                     ),
-                    padding:const EdgeInsets.only(right: 2),
+                    padding: const EdgeInsets.only(right: 2),
                   )
                 : Container(),
             Text(

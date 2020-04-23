@@ -66,6 +66,14 @@ class HomeRoute extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text("设备列表"),
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor.withAlpha(150)
+            ])),
+          ),
         ),
         body: RefreshIndicator(
           child: Container(
