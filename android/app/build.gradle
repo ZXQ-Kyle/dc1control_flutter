@@ -1,0 +1,79 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+
+    signingConfigs {
+        release {
+            storeFile file("D:\\work\\flutter_project\\dc1_client_flutter\\dc1_client_flutter\\android\\key.jks")
+            storePassword "GIjPtfNe4aP6qkhJ"
+            keyAlias "master"
+            keyPassword "GIjPtfNe4aP6qkhJ"
+        }
+    }
+
+    compileSdkVersion 28
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        applicationId "info.ponyo.dc1control"
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 17
+        versionName "2.14"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            ndk {
+                abiFilters "armeabi-v7a"
+            }
+        }
+
+        debug {
+            signingConfig signingConfigs.release
+            ndk {
+                //这里要加上，否则debug包会出问题,后面三个为可选，x86建议加上不然部分模拟器回报错
+                abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86"
+            }
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}

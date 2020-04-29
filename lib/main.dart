@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:dc1clientflutter/route/about_route.dart';
 import 'package:dc1clientflutter/route/dc1_wifi_config_route.dart';
 import 'package:dc1clientflutter/route/home/edit_device_name_route.dart';
@@ -51,7 +50,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: "dc1控制端",
           theme: ThemeData(primaryColor: themeModel.currentTheme),
-          home: AboutRoute(),
+          home: HomeRoute(),
           routes: {
             MyRoute.THEME_ROUTE: (context) => ThemeRoute(),
             MyRoute.SETTING_ROUTE: (context) => SettingRoute(),
