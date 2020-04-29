@@ -9,7 +9,6 @@ import 'package:dc1clientflutter/route/home/update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bugly/flutter_bugly.dart';
-import 'package:ota_update/ota_update.dart';
 import 'package:package_info/package_info.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -116,10 +115,15 @@ class HomeRouteState extends State<HomeRoute> {
     if (_unchecked) {
       _unchecked = false;
       FlutterBugly.getUpgradeInfo().then((value) async {
-        myPrint(value.apkUrl);
-        myPrint(value.versionCode);
-        myPrint(value.newFeature);
-        myPrint(value.fileSize);
+        if (value == null) {
+          myPrint("------FlutterBugly.getUpgradeInfo() == null-------");
+          value =
+              await FlutterBugly.checkUpgrade(isSilence: true, useCache: false);
+          if (value == null) {
+            myPrint("------FlutterBugly.checkUpgrade() == null-------");
+            return;
+          }
+        }
 
         var packageInfo = await PackageInfo.fromPlatform();
         myPrint(packageInfo.buildNumber);

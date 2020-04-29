@@ -60,6 +60,14 @@ class MyDrawer extends StatelessWidget {
             onTap: () =>
                 Navigator.of(context).pushNamed(MyRoute.WIFI_CONFIG_ROUTE),
           ),
+          ListTile(
+            leading: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).primaryColor,
+            ),
+            title: Text("关于"),
+            onTap: () => Navigator.of(context).pushNamed(MyRoute.ABOUT_ROUTE),
+          ),
         ],
       );
     });

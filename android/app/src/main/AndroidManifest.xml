@@ -20,6 +20,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:icon="@drawable/icon"
+        android:roundIcon="@drawable/icon"
         android:networkSecurityConfig="@xml/network_security_config"
         android:label="dc1控制端">
         <activity

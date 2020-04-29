@@ -6,6 +6,7 @@ import 'package:dc1clientflutter/common/socket.dart';
 import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bugly/flutter_bugly.dart';
 import 'package:provider/provider.dart';
 
 class SettingRoute extends StatefulWidget {
@@ -24,11 +25,6 @@ class _SettingRouteState extends State<SettingRoute> {
       TextEditingController(text: Global.profile.token);
 
   GlobalKey _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
