@@ -12,6 +12,7 @@ import 'package:dc1clientflutter/route/theme_route.dart';
 import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bugly/flutter_bugly.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -19,7 +20,12 @@ import 'common/global.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Global.init().then((e) => runApp(MyApp()));
+  FlutterBugly.postCatchedException(
+      () => Global.init().then((value) => runApp(MyApp())));
+  FlutterBugly.init(
+    androidAppId: "2c489a8155",
+    autoDownloadOnWifi: true,
+  );
 
   /// Android状态栏透明
   if (Platform.isAndroid) {
@@ -30,9 +36,10 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    myPrint("MyApp build");
+
     return MultiProvider(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider.value(value: ThemeModel()),

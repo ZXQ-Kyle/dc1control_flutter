@@ -17,9 +17,9 @@ class _SettingRouteState extends State<SettingRoute> {
   TextEditingController _hostController =
       TextEditingController(text: Global.profile.host);
   TextEditingController _socketPortController =
-      TextEditingController(text: Global.profile.socketPort.toString());
+      TextEditingController(text: (Global.profile.socketPort ?? "").toString());
   TextEditingController _httpPortController =
-      TextEditingController(text: Global.profile.httpPort.toString());
+      TextEditingController(text: (Global.profile.httpPort ?? "").toString());
   TextEditingController _tokenController =
       TextEditingController(text: Global.profile.token);
 

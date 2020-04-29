@@ -5,8 +5,13 @@ import 'package:dc1clientflutter/common/api.dart';
 import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/log_util.dart';
+import 'package:dc1clientflutter/route/home/update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bugly/flutter_bugly.dart';
+import 'package:ota_update/ota_update.dart';
+import 'package:package_info/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'item_dc1_widget.dart';
@@ -56,13 +61,24 @@ class DeviceListModel extends ChangeNotifier {
   }
 }
 
-class HomeRoute extends StatelessWidget {
+class HomeRoute extends StatefulWidget {
   final DeviceListModel _deviceListModel = DeviceListModel();
 
+  @override
+  HomeRouteState createState() {
+    return HomeRouteState();
+  }
+}
+
+class HomeRouteState extends State<HomeRoute> {
+  bool _unchecked = true;
+
+  @override
   Widget build(BuildContext context) {
-    myPrint("HomeRoute build");
+    checkUpdate(context);
+    myPrint("HomeRouteState build");
     return ChangeNotifierProvider.value(
-      value: _deviceListModel,
+      value: widget._deviceListModel,
       child: Scaffold(
         appBar: AppBar(
           title: Text("设备列表"),
@@ -89,10 +105,36 @@ class HomeRoute extends StatelessWidget {
               },
             ),
           ),
-          onRefresh: () async => _deviceListModel.refresh(),
+          onRefresh: () async => widget._deviceListModel.refresh(),
         ),
         drawer: MyDrawer(),
       ),
     );
+  }
+
+  void checkUpdate(BuildContext context) {
+    if (_unchecked) {
+      _unchecked = false;
+      FlutterBugly.getUpgradeInfo().then((value) async {
+        myPrint(value.apkUrl);
+        myPrint(value.versionCode);
+        myPrint(value.newFeature);
+        myPrint(value.fileSize);
+
+        var packageInfo = await PackageInfo.fromPlatform();
+        myPrint(packageInfo.buildNumber);
+        if (value.versionCode > int.parse(packageInfo.buildNumber)) {
+          bool isGranted = await Permission.storage.request().isGranted;
+          myPrint(packageInfo.buildNumber);
+          if (isGranted) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return UpdateDialog(value);
+                });
+          }
+        }
+      });
+    }
   }
 }
