@@ -13,6 +13,7 @@ import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bugly/flutter_bugly.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -20,8 +21,7 @@ import 'common/global.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  FlutterBugly.postCatchedException(
-      () => Global.init().then((value) => runApp(MyApp())));
+  FlutterBugly.postCatchedException(() => Global.init().then((value) => runApp(MyApp())));
   FlutterBugly.init(
     androidAppId: "2c489a8155",
     autoDownloadOnWifi: true,
@@ -29,28 +29,37 @@ void main() {
 
   /// Android状态栏透明
   if (Platform.isAndroid) {
-    SystemUiOverlayStyle systemUiOverlayStyle =
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(statusBarColor: Colors.transparent);
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-
     return MultiProvider(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider.value(value: ThemeModel()),
         ChangeNotifierProvider.value(value: HostModel()),
       ],
-      child: Consumer2<ThemeModel, HostModel>(builder: (BuildContext context,
-          ThemeModel themeModel, HostModel hostModel, Widget child) {
+      child: Consumer2<ThemeModel, HostModel>(
+          builder: (BuildContext context, ThemeModel themeModel, HostModel hostModel, Widget child) {
         return MaterialApp(
           title: "dc1控制端",
           theme: ThemeData(primaryColor: themeModel.currentTheme),
+          navigatorKey: navGK,
           home: HomeRoute(),
+          builder: (context, child) {
+            return GestureDetector(
+              onTap: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+                  FocusManager.instance.primaryFocus.unfocus();
+                }
+              },
+              child: child,
+            );
+          },
           routes: {
             MyRoute.THEME_ROUTE: (context) => ThemeRoute(),
             MyRoute.SETTING_ROUTE: (context) => SettingRoute(),

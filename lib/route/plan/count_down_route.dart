@@ -1,8 +1,8 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/net/api.dart';
 import 'package:dc1clientflutter/common/funs.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
+
 import 'package:dc1clientflutter/common/widget/wheel_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -11,7 +11,6 @@ import 'package:uuid_enhanced/uuid.dart';
 class CountDownRoute extends StatefulWidget {
   @override
   _CountDownRouteState createState() {
-    myPrint("_CountDownRouteState createState");
     return _CountDownRouteState();
   }
 }
@@ -33,15 +32,10 @@ class _CountDownRouteState extends State<CountDownRoute> {
 
   @override
   Widget build(BuildContext context) {
-    myPrint("_CountDownRouteState build");
     _dc1 = ModalRoute.of(context).settings.arguments;
 
-    var select = TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).primaryColor);
-    var unSelect = TextStyle(
-        fontSize: 12, fontWeight: FontWeight.normal, color: Colors.grey[800]);
+    var select = TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor);
+    var unSelect = TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.grey[800]);
     var lineLightGrey = Container(
       height: 1,
       margin: EdgeInsets.symmetric(horizontal: 12),
@@ -58,8 +52,7 @@ class _CountDownRouteState extends State<CountDownRoute> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-                "说明：这是一个关闭倒计时，如果当前开关是关闭状态，则会打开这个开关，然后添加一个倒计时关闭计划，添加的计划可到计划页面查看"),
+            Text("说明：这是一个关闭倒计时，如果当前开关是关闭状态，则会打开这个开关，然后添加一个倒计时关闭计划，添加的计划可到计划页面查看"),
             Container(
               height: 1,
               constraints: BoxConstraints(minWidth: double.infinity),
@@ -177,21 +170,22 @@ class _CountDownRouteState extends State<CountDownRoute> {
     return _initHour == hour && _initMinute == minute;
   }
 
-  void _save() {
+  void _save() async {
     if (_dc1 == null) {
       showToast("无法获取到设备id");
       return;
     }
-    int switchIndex =
-        _switchName == null ? 0 : _dc1.nameList.indexOf(_switchName) - 1;
+    int switchIndex = _switchName == null ? 0 : _dc1.nameList.indexOf(_switchName) - 1;
     var newStatus = _dc1.status.replaceRange(switchIndex, switchIndex + 1, "1");
-    Api().setDeviceStatus(_dc1.id, newStatus, (onFailed) {
-      showToast("开启$_switchName失败");
-    });
+
+    var httpResult = await Api().setDeviceStatus(_dc1.id, newStatus);
+    if (httpResult.success) {
+    } else {
+      showToast("开启$_switchName失败:${httpResult.message}");
+    }
 
     var dateTime = DateTime.now();
-    DateTime targetTime =
-        dateTime.add(Duration(hours: _initHour, minutes: _initMinute));
+    DateTime targetTime = dateTime.add(Duration(hours: _initHour, minutes: _initMinute));
     PlanBean planBean = PlanBean()
       ..id = Uuid.randomUuid().toString()
       ..enable = true
@@ -202,12 +196,13 @@ class _CountDownRouteState extends State<CountDownRoute> {
       ..command = "0"
       ..switchIndex = switchIndex.toString()
       ..repeatData = "";
-    myPrint(planBean);
-    Api().addPlan(planBean, (onSuccess) {
-      Navigator.pop(context);
-    }, (onFailed) {
+
+    var httpResult2 = await Api().addPlan(planBean);
+    if (httpResult2.success) {
+      safePop();
+    } else {
       showToast("添加关闭任务失败，请手动关闭开关");
-    });
+    }
   }
 
   Widget _buildCommonUseItem(String text, {int hour = 0, int minute = 0}) {
@@ -235,15 +230,11 @@ class _CountDownRouteState extends State<CountDownRoute> {
                 : Container(),
             Text(
               text,
-              style: TextStyle(
-                  color: !isCurrent
-                      ? Colors.black
-                      : Theme.of(context).primaryColor),
+              style: TextStyle(color: !isCurrent ? Colors.black : Theme.of(context).primaryColor),
             ),
           ],
         ),
-        padding: EdgeInsets.only(
-            left: isCurrent ? 0 : 12, top: 16, right: 12, bottom: 16),
+        padding: EdgeInsets.only(left: isCurrent ? 0 : 12, top: 16, right: 12, bottom: 16),
       ),
     );
   }

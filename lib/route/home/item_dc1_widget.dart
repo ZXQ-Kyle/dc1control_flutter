@@ -1,8 +1,9 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/net/api.dart';
 import 'package:dc1clientflutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:provider/provider.dart';
 
 import 'home_route.dart';
@@ -44,9 +45,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                   color: primaryColor,
                 ),
                 onTap: () {
-                  Navigator.of(context).pushNamed(
-                      MyRoute.EDIT_DEVICE_NAME_ROUTE,
-                      arguments: dc1);
+                  Navigator.of(context).pushNamed(MyRoute.EDIT_DEVICE_NAME_ROUTE, arguments: dc1);
                 },
               )
             ],
@@ -67,11 +66,6 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
             ),
             onTap: () {
               showResetDialog(context, dc1);
-//              showModalBottomSheet(
-//                  context: context,
-//                  builder: (context) {
-//                    return;
-//                  });
             },
           ),
           buildSwitch(0),
@@ -83,9 +77,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Expanded(
                 flex: 1,
                 child: FlatButton(
-                  onPressed: () => Navigator.pushNamed(
-                      context, MyRoute.PLAN_ROUTE,
-                      arguments: dc1),
+                  onPressed: () => Navigator.pushNamed(context, MyRoute.PLAN_ROUTE, arguments: dc1),
                   textColor: primaryColor,
                   child: Text(
                     "计划",
@@ -97,8 +89,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                 flex: 1,
                 child: FlatButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, MyRoute.COUNT_DOWN_ROUTE,
-                        arguments: widget._dc1);
+                    Navigator.pushNamed(context, MyRoute.COUNT_DOWN_ROUTE, arguments: widget._dc1);
                   },
                   textColor: primaryColor,
                   child: Text(
@@ -127,19 +118,19 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
               Text("用电量每增加0.05kwh更新数据,\n点击重置重新开始计算。"),
               tip.isEmpty
                   ? Container()
-                  : Text(tip,
-                      style: TextStyle(color: Colors.red, fontSize: 12),
-                      textAlign: TextAlign.start),
+                  : Text(tip, style: TextStyle(color: Colors.red, fontSize: 12), textAlign: TextAlign.start),
             ],
           ),
           actions: <Widget>[
             FlatButton.icon(
-              onPressed: () {
-                Api().resetPower(dc1.id, (onSuccess) => Navigator.pop(context),
-                    (onFailed) {
-                  tip = "重置失败：${onFailed.message}";
-                  (context as Element).markNeedsBuild();
-                });
+              onPressed: () async {
+                var httpResult = await Api().resetPower(dc1.id);
+                if (httpResult.success) {
+                  pop();
+                } else {
+                  tip = "重置失败：${httpResult.message}";
+                  setState(() {});
+                }
               },
               icon: Icon(
                 Icons.check,
@@ -172,8 +163,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
             activeColor: Theme.of(context).primaryColor,
             value: widget._dc1.status.split("")[pos] == "1",
             onChanged: (value) {
-              var replaceRange = widget._dc1.status
-                  .replaceRange(pos, pos + 1, value ? "1" : "0");
+              var replaceRange = widget._dc1.status.replaceRange(pos, pos + 1, value ? "1" : "0");
               setState(() {
                 widget._dc1.status = replaceRange;
               });
@@ -185,8 +175,7 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
   }
 
   formatTime() {
-    var dateTime =
-        DateTime.fromMillisecondsSinceEpoch(widget._dc1.powerStartTime);
+    var dateTime = DateTime.fromMillisecondsSinceEpoch(widget._dc1.powerStartTime);
     return "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
   }
 }

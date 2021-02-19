@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dc1clientflutter/common/funs.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -30,9 +30,7 @@ class _WifiConfigRouteState extends State<WifiConfigRoute> {
               Text(
                 "注意：不支持5g网络",
                 style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold),
+                    fontSize: 16, color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
               ),
               Container(
                 padding: EdgeInsets.all(12),
@@ -76,8 +74,7 @@ class _WifiConfigRouteState extends State<WifiConfigRoute> {
                       ])),
                   child: Text(
                     "配  置",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -101,7 +98,6 @@ class _WifiConfigRouteState extends State<WifiConfigRoute> {
 
     RawDatagramSocket.bind(InternetAddress.anyIPv4, 0).then((socket) {
       socket.listen((event) {
-        myPrint(event);
         if (event == RawSocketEvent.read) {
           var receive = socket.receive();
           if (receive?.data != null) {

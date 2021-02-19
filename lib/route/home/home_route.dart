@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:dc1clientflutter/bean/dc1.dart';
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/common/bar_tip.dart';
+import 'package:dc1clientflutter/common/global.dart';
+import 'package:dc1clientflutter/net/api.dart';
 import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
+
 import 'package:dc1clientflutter/route/home/update_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -17,52 +19,28 @@ import 'item_dc1_widget.dart';
 import 'my_drawer.dart';
 
 class DeviceListModel extends ChangeNotifier {
-  List<Dc1> _list;
-  StreamSubscription<DeviceChangedEvent> _listener;
+  List<Dc1> list;
 
   DeviceListModel() {
-    _listener = eventBus.on<DeviceChangedEvent>().listen((value) {
-      myPrint("home_route.dart 21:DeviceListModel()");
-      refresh();
-    });
-    myPrint("home_route.dart 24:DeviceListModel()");
     refresh();
   }
 
-  @override
-  void dispose() {
-    _listener.cancel();
-    super.dispose();
+  Future<void> refresh() async {
+    list = await Api().queryDc1List();
+    notifyListeners();
   }
 
-  Future<void> refresh() {
-    Api().queryDc1List((value) {
-      _list = value;
-      notifyListeners();
-    });
-    return null;
-  }
-
-  void setDeviceStatus(String id, String status) {
-    Api().setDeviceStatus(id, status, (value) {
-      showToast("状态切换失败");
-      myPrint("home_route.dart 45:setDeviceStatus()");
-      refresh();
-    });
-  }
-
-  get data {
-    return _list;
-  }
-
-  get count {
-    return _list == null ? 0 : _list.length;
+  void setDeviceStatus(String id, String status) async {
+    var httpResult = await Api().setDeviceStatus(id, status);
+    if (httpResult.success) {
+      showToast('设置成功');
+    } else {
+      showToast('切换失败：${httpResult.message}');
+    }
   }
 }
 
 class HomeRoute extends StatefulWidget {
-  final DeviceListModel _deviceListModel = DeviceListModel();
-
   @override
   HomeRouteState createState() {
     return HomeRouteState();
@@ -70,41 +48,55 @@ class HomeRoute extends StatefulWidget {
 }
 
 class HomeRouteState extends State<HomeRoute> {
-  bool _unchecked = true;
+  final DeviceListModel _deviceListModel = DeviceListModel();
+  Timer _timer;
+
+  @override
+  void initState() {
+    checkUpdate(context);
+    _timer = Timer.periodic(Duration(seconds: Global.period), (timer) {
+      _deviceListModel.refresh();
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    checkUpdate(context);
-    myPrint("HomeRouteState build");
     return ChangeNotifierProvider.value(
-      value: widget._deviceListModel,
+      value: _deviceListModel,
       child: Scaffold(
         appBar: AppBar(
           title: Text("设备列表"),
           backgroundColor: Colors.transparent,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withAlpha(150)
-            ])),
+              gradient: LinearGradient(
+                colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(150)],
+              ),
+            ),
           ),
         ),
         body: RefreshIndicator(
+          onRefresh: () async => _deviceListModel.refresh(),
           child: Container(
             decoration: BoxDecoration(color: Colors.grey[200]),
             child: Consumer<DeviceListModel>(
               builder: (context, deviceListModel, child) {
                 return ListView.builder(
-                  itemCount: deviceListModel.count,
+                  itemCount: deviceListModel.list?.length ?? 0,
                   itemBuilder: (BuildContext context, int index) {
-                    return Dc1ItemWidget(deviceListModel.data[index]);
+                    return Dc1ItemWidget(deviceListModel.list[index]);
                   },
                 );
               },
             ),
           ),
-          onRefresh: () async => widget._deviceListModel.refresh(),
         ),
         drawer: MyDrawer(),
       ),
@@ -112,33 +104,25 @@ class HomeRouteState extends State<HomeRoute> {
   }
 
   void checkUpdate(BuildContext context) {
-    if (_unchecked) {
-      _unchecked = false;
-      FlutterBugly.getUpgradeInfo().then((value) async {
+    FlutterBugly.getUpgradeInfo().then((value) async {
+      if (value == null) {
+        value = await FlutterBugly.checkUpgrade(isSilence: true, useCache: false);
         if (value == null) {
-          myPrint("------FlutterBugly.getUpgradeInfo() == null-------");
-          value =
-              await FlutterBugly.checkUpgrade(isSilence: true, useCache: false);
-          if (value == null) {
-            myPrint("------FlutterBugly.checkUpgrade() == null-------");
-            return;
-          }
+          return;
         }
+      }
 
-        var packageInfo = await PackageInfo.fromPlatform();
-        myPrint(packageInfo.buildNumber);
-        if (value.versionCode > int.parse(packageInfo.buildNumber)) {
-          bool isGranted = await Permission.storage.request().isGranted;
-          myPrint(packageInfo.buildNumber);
-          if (isGranted) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return UpdateDialog(value);
-                });
-          }
+      var packageInfo = await PackageInfo.fromPlatform();
+      if (value.versionCode > int.parse(packageInfo.buildNumber)) {
+        bool isGranted = await Permission.storage.request().isGranted;
+        if (isGranted) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return UpdateDialog(value);
+              });
         }
-      });
-    }
+      }
+    });
   }
 }

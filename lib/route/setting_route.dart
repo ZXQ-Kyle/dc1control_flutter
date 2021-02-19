@@ -1,13 +1,16 @@
-import 'package:dc1clientflutter/common/api_service.dart';
+import 'dart:convert';
+
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/common/socket.dart';
+import 'package:dc1clientflutter/net/api_service.dart';
+
 import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bugly/flutter_bugly.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../bean/server_config.dart';
 
 class SettingRoute extends StatefulWidget {
   @override
@@ -15,16 +18,22 @@ class SettingRoute extends StatefulWidget {
 }
 
 class _SettingRouteState extends State<SettingRoute> {
-  TextEditingController _hostController =
-      TextEditingController(text: Global.profile.host);
+  TextEditingController _hostController = TextEditingController(text: Global.profile.host);
   TextEditingController _socketPortController =
       TextEditingController(text: (Global.profile.socketPort ?? "").toString());
   TextEditingController _httpPortController =
       TextEditingController(text: (Global.profile.httpPort ?? "").toString());
-  TextEditingController _tokenController =
-      TextEditingController(text: Global.profile.token);
+  TextEditingController _tokenController = TextEditingController(text: Global.profile.token);
 
   GlobalKey _formKey = GlobalKey<FormState>();
+
+  List<ServerConfig> _historyList;
+
+  @override
+  void initState() {
+    getHistory();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +43,7 @@ class _SettingRouteState extends State<SettingRoute> {
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        constraints: BoxConstraints(
-            minWidth: double.infinity, minHeight: double.infinity),
+        constraints: BoxConstraints(minWidth: double.infinity, minHeight: double.infinity),
         child: Form(
           key: _formKey,
           autovalidate: true,
@@ -52,19 +60,6 @@ class _SettingRouteState extends State<SettingRoute> {
                 ),
                 validator: (value) {
                   return value.length > 0 ? null : "请输入服务器地址";
-                },
-              ),
-              TextFormField(
-                controller: _socketPortController,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "推送端口",
-                  hintText: "默认8800",
-                  prefixIcon: Icon(Icons.pages),
-                ),
-                validator: (value) {
-                  return value.length > 0 ? null : "请输入推送端口";
                 },
               ),
               TextFormField(
@@ -101,6 +96,14 @@ class _SettingRouteState extends State<SettingRoute> {
                   onPressed: _save,
                 ),
               ),
+              Expanded(
+                child: ListView.builder(
+                    itemCount: _historyList?.length ?? 0,
+                    itemBuilder: (ctx, index) {
+                      var config = _historyList[index];
+                      return _buildItem(config);
+                    }),
+              ),
             ],
           ),
         ),
@@ -108,23 +111,67 @@ class _SettingRouteState extends State<SettingRoute> {
     );
   }
 
+  Widget _buildItem(ServerConfig config) {
+    return InkWell(
+      onTap: () {
+        _hostController.text = config.host;
+        _httpPortController.text = config.httpPort.toString();
+        _tokenController.text = config.token;
+        setState(() {});
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).primaryColor.withOpacity(0.2),
+        ),
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: Text('host:  ${config.host}\nhttpPort:  ${config.httpPort}'),
+      ),
+    );
+  }
+
   void _save() {
     if ((_formKey.currentState as FormState).validate()) {
-      if (_hostController.text.startsWith("http")) {
-        Global.profile.host = _hostController.text;
+      var _host = _hostController.text;
+      if (_host.startsWith("http")) {
+        Global.profile.host = _host;
       } else {
-        Global.profile.host = "http://${_hostController.text}";
+        Global.profile.host = "http://${_host}";
       }
-      Global.profile.socketPort = int.parse(_socketPortController.text);
       Global.profile.httpPort = int.parse(_httpPortController.text);
       Global.profile.token = _tokenController.text;
-      myPrint(Global.profile.toJson().toString());
-      SocketManager().reset();
-      ApiService().init();
-      Provider.of<HostModel>(context, listen: false).notifyListeners();
+      http = Http();
+      saveHistory();
       Navigator.of(context).pop();
     } else {
       showToast("输入异常！");
     }
+  }
+
+  void getHistory() async {
+    var sp = await SharedPreferences.getInstance();
+    var string = sp.getString('history');
+    if (string == null) {
+      return;
+    }
+    var json = jsonDecode(string);
+    if (json is List) {
+      _historyList = json.map((e) => ServerConfig.fromJson(e)).toList();
+      setState(() {});
+    }
+  }
+
+  void saveHistory() async {
+    var profile = Global.profile;
+    if (_historyList == null) {
+      _historyList = [];
+    }
+    _historyList.add(ServerConfig(profile.host, profile.socketPort, profile.httpPort, profile.token));
+    if (_historyList.length > 5) {
+      _historyList.removeAt(0);
+    }
+    var sp = await SharedPreferences.getInstance();
+    sp.setString('history', jsonEncode(_historyList));
   }
 }

@@ -2,8 +2,10 @@ import 'dart:collection';
 
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
-import 'package:dc1clientflutter/common/api.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
+import 'package:dc1clientflutter/common/bar_tip.dart';
+import 'package:dc1clientflutter/common/funs.dart';
+import 'package:dc1clientflutter/net/api.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -44,8 +46,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
   @override
   Widget build(BuildContext context) {
     _dc1 = ModalRoute.of(context).settings.arguments;
-    var labelStyle =
-        TextStyle(fontSize: 16, color: Theme.of(context).primaryColor);
+    var labelStyle = TextStyle(fontSize: 16, color: Theme.of(context).primaryColor);
     return Scaffold(
       appBar: AppBar(
         title: Text("添加计划"),
@@ -71,8 +72,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                 constraints: BoxConstraints(minWidth: double.infinity),
                 height: 56,
-                child: Text(
-                    _time == null ? "未设置" : "${_time.hour}:${_time.minute}"),
+                child: Text(_time == null ? "未设置" : "${_time.hour}:${_time.minute}"),
               ),
               onTap: () {
                 pickTime();
@@ -81,8 +81,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
             Container(
               margin: EdgeInsets.only(bottom: 16),
               color: Theme.of(context).primaryColor,
-              constraints:
-                  BoxConstraints(minWidth: double.infinity, maxHeight: 1),
+              constraints: BoxConstraints(minWidth: double.infinity, maxHeight: 1),
             ),
             Text(
               "周期",
@@ -119,8 +118,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
             Container(
               margin: EdgeInsets.only(bottom: 16),
               color: Theme.of(context).primaryColor,
-              constraints:
-                  BoxConstraints(minWidth: double.infinity, maxHeight: 1),
+              constraints: BoxConstraints(minWidth: double.infinity, maxHeight: 1),
             ),
             Text(
               "开关",
@@ -176,11 +174,9 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
                               return MapEntry(
                                   index,
                                   SimpleDialogOption(
-                                    onPressed: () => Navigator.pop(
-                                        context, index.toString()),
+                                    onPressed: () => Navigator.pop(context, index.toString()),
                                     child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 8),
+                                      padding: EdgeInsets.symmetric(vertical: 8),
                                       child: Text(text),
                                     ),
                                   ));
@@ -197,8 +193,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
               child: Container(
                 constraints: BoxConstraints(minWidth: double.infinity),
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                child: Text(
-                    _command == null ? "未设置" : _command == "0" ? "关闭" : "开启"),
+                child: Text(_command == null ? "未设置" : _command == "0" ? "关闭" : "开启"),
               ),
             )
           ],
@@ -263,36 +258,30 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
     );
   }
 
-  _save(BuildContext context) {
+  _save(BuildContext context) async {
     if (_time == null) {
-      final snackBar =
-          SnackBar(duration: Duration(seconds: 1), content: Text("请选择时间"));
+      final snackBar = SnackBar(duration: Duration(seconds: 1), content: Text("请选择时间"));
       Scaffold.of(context).showSnackBar(snackBar);
       return;
     }
     if (_switchName == null || _command == null) {
-      final snackBar =
-          SnackBar(duration: Duration(seconds: 1), content: Text("请设置开关"));
+      final snackBar = SnackBar(duration: Duration(seconds: 1), content: Text("请设置开关"));
       Scaffold.of(context).showSnackBar(snackBar);
       return;
     }
     if (_switchName == null || _command == null) {
-      final snackBar =
-          SnackBar(duration: Duration(seconds: 1), content: Text("请设置开关"));
+      final snackBar = SnackBar(duration: Duration(seconds: 1), content: Text("请设置开关"));
       Scaffold.of(context).showSnackBar(snackBar);
       return;
     }
     if (_repeatPosition == 3 && !_weekState.containsValue(true)) {
-      final snackBar =
-          SnackBar(duration: Duration(seconds: 1), content: Text("自定义数据未设置"));
+      final snackBar = SnackBar(duration: Duration(seconds: 1), content: Text("自定义数据未设置"));
       Scaffold.of(context).showSnackBar(snackBar);
       return;
     }
     var repeat = _calcRepeat();
 
-    String minute = _time.minute < 10
-        ? "0" + _time.minute.toString()
-        : _time.minute.toString();
+    String minute = _time.minute < 10 ? "0" + _time.minute.toString() : _time.minute.toString();
     PlanBean planBean = PlanBean()
       ..id = Uuid.randomUuid().toString()
       ..enable = true
@@ -302,21 +291,15 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
       ..repeat = repeat
       ..deviceId = _dc1?.id
       ..command = _command ?? ""
-      ..switchIndex =
-          ((_dc1?.nameList?.indexOf(_switchName) ?? 0) - 1).toString()
+      ..switchIndex = ((_dc1?.nameList?.indexOf(_switchName) ?? 0) - 1).toString()
       ..repeatData = "";
 
-    myPrint(planBean);
-    Api().addPlan(
-      planBean,
-      (onSuccess) => Navigator.pop(context),
-      (onFailed) {
-        final snackBar =
-            SnackBar(duration: Duration(seconds: 5), content: Text("保存失败!"));
-        Scaffold.of(context).showSnackBar(snackBar);
-      },
-    );
-//        .setRepeatData(String.format("%d,%d", wvPeriod.getCurrentItem() + 1, wvTime.getCurrentItem() + 1));
+    var httpResult = await Api().addPlan(planBean);
+    if (httpResult.success) {
+      safePop();
+    } else {
+      BarTip.warning(context, '保存失败:${httpResult.message}');
+    }
   }
 
   String _calcRepeat() {

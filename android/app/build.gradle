@@ -28,7 +28,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("D:\\work\\flutter_project\\dc1_client_flutter\\dc1_client_flutter\\android\\key.jks")
+            storeFile file("../key.jks")
             storePassword "GIjPtfNe4aP6qkhJ"
             keyAlias "master"
             keyPassword "GIjPtfNe4aP6qkhJ"
@@ -45,8 +45,8 @@ android {
         applicationId "info.ponyo.dc1control"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 17
-        versionName "2.14"
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

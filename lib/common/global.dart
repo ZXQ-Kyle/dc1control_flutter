@@ -1,12 +1,9 @@
 import 'dart:convert';
 
 import 'package:dc1clientflutter/bean/profile.dart';
-import 'package:dc1clientflutter/common/log_util.dart';
-import 'package:dc1clientflutter/common/socket.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'api_service.dart';
 
 const _themes = <MaterialColor>[
   Colors.teal,
@@ -22,7 +19,13 @@ const _themes = <MaterialColor>[
   Colors.grey,
 ];
 
+Logger logger = Logger(
+  printer: PrefixPrinter(PrettyPrinter(colors: true)),
+);
+
 class Global {
+  static const keyPeriod = 'period';
+
   static SharedPreferences _sp;
 
   static Profile profile;
@@ -31,6 +34,9 @@ class Global {
   static List<MaterialColor> get themes {
     return _themes;
   }
+
+  ///http轮询间隔，单位秒
+  static int _period = 5;
 
   /// 是否为release版
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
@@ -41,7 +47,6 @@ class Global {
     if (profileStr != null) {
       try {
         profile = Profile.fromJson(jsonDecode(profileStr));
-        myPrint(profile.toJson().toString());
       } catch (e) {
         print(e);
       }
@@ -50,8 +55,18 @@ class Global {
     if (profile == null) {
       profile = Profile();
     }
-    SocketManager().init();
-    ApiService().init();
+
+    _period = _sp.getInt(keyPeriod);
+    if (_period == null) {
+      _period = 5;
+    }
+  }
+
+  static int get period => _period;
+
+  static set period(int value) {
+    _period = value;
+    _sp.setInt(keyPeriod, value);
   }
 
   static saveProfile() {

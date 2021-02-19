@@ -1,4 +1,3 @@
-import 'package:dc1clientflutter/common/log_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
@@ -8,7 +7,6 @@ class PackageInfoModel extends ChangeNotifier {
   PackageInfo _packageInfo;
 
   PackageInfoModel() {
-    myPrint("new PackageInfoModel()");
     PackageInfo.fromPlatform().then((value) {
       _packageInfo = value;
       notifyListeners();
@@ -40,8 +38,7 @@ class AboutRoute extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(top: 28),
-                child: Consumer<PackageInfoModel>(
-                    builder: (context, model, child) {
+                child: Consumer<PackageInfoModel>(builder: (context, model, child) {
                   return Text(model._packageInfo?.version ?? "");
                 }),
               ),

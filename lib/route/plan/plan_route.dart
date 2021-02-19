@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/common/global.dart';
+import 'package:dc1clientflutter/net/api.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -28,17 +31,18 @@ class PlanModel extends ChangeNotifier {
     _data = list;
   }
 
-  Future<bool> refresh() async {
-    Api().queryPlanList(_dc1?.id, (onSuccess) {
-      _data = onSuccess;
-      notifyListeners();
-    });
-    return null;
+  Future refresh() async {
+    _data = await Api().queryPlanList(_dc1?.id);
+    notifyListeners();
   }
 
-  enablePlan(String planId, bool enable) {
-    Api().enablePlan(planId, enable, (onFailed) => refresh());
-    notifyListeners();
+  enablePlan(String planId, bool enable) async {
+    var httpResult = await Api().enablePlan(planId, enable);
+    if (httpResult.success) {
+    } else {
+      refresh();
+      notifyListeners();
+    }
   }
 
   void delete(int index) {
@@ -55,11 +59,26 @@ class PlanRoute extends StatefulWidget {
 class _PlanRouteState extends State<PlanRoute> {
   PlanModel _planModel;
   Dc1 _dc1;
+  Timer _timer;
+
+  @override
+  void initState() {
+    _dc1 = ModalRoute.of(context).settings.arguments;
+    _planModel = PlanModel(_dc1)..refresh();
+    _timer = Timer.periodic(Duration(seconds: Global.period), (timer) {
+      _planModel.refresh();
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _dc1 = ModalRoute.of(context).settings.arguments;
-    _planModel = PlanModel(_dc1)..refresh();
     return ChangeNotifierProvider.value(
       value: _planModel,
       child: Scaffold(
@@ -79,8 +98,7 @@ class _PlanRouteState extends State<PlanRoute> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
-          onPressed: () => Navigator.of(context)
-              .pushNamed(MyRoute.ADD_PLAN_ROUTE, arguments: _dc1),
+          onPressed: () => Navigator.of(context).pushNamed(MyRoute.ADD_PLAN_ROUTE, arguments: _dc1),
           child: Icon(Icons.add),
         ),
       ),
@@ -97,21 +115,18 @@ class _PlanRouteState extends State<PlanRoute> {
               return AlertDialog(
                 title: Text("删除定时"),
                 actions: <Widget>[
-                  FlatButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: Text("取消")),
-                  FlatButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text("确定")),
+                  FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("取消")),
+                  FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("确定")),
                 ],
               );
             });
         if (delete) {
-          Api().deletePlan(plan.id, (onSuccess) {
+          var httpResult = await Api().deletePlan(plan.id);
+          if (httpResult.success) {
             _planModel.delete(index);
-          }, (onFailed) {
+          } else {
             showToast("删除失败");
-          });
+          }
         }
       },
       child: IntrinsicHeight(
@@ -199,9 +214,7 @@ class _PlanRouteState extends State<PlanRoute> {
   }
 
   String getRepeatDesc(PlanBean plan) {
-    if (plan.repeat == null ||
-        plan.repeat.isEmpty ||
-        PlanBean.REPEAT_EVERYDAY == plan.repeat) {
+    if (plan.repeat == null || plan.repeat.isEmpty || PlanBean.REPEAT_EVERYDAY == plan.repeat) {
       return "每天";
     }
     if (PlanBean.REPEAT_ONCE == plan.repeat) {
@@ -215,9 +228,7 @@ class _PlanRouteState extends State<PlanRoute> {
       return "每${split[0]}分钟执行一次，每次${split[1]}分钟";
     }
     var split = plan.repeat.split(",");
-    var reduce = split
-        .map((e) => PlanBean.WEEK_DAY_CN[int.parse(e) - 1])
-        .reduce((e0, e1) => e0 + "，" + e1);
+    var reduce = split.map((e) => PlanBean.WEEK_DAY_CN[int.parse(e) - 1]).reduce((e0, e1) => e0 + "，" + e1);
     return "每" + reduce;
   }
 }

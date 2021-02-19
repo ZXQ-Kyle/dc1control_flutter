@@ -1,8 +1,9 @@
 import 'package:dc1clientflutter/bean/dc1.dart';
-import 'package:dc1clientflutter/common/api.dart';
+import 'package:dc1clientflutter/net/api.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nav_router/nav_router.dart';
 
 class EditDeviceNameRoute extends StatefulWidget {
   @override
@@ -13,23 +14,18 @@ class _EditDeviceNameRouteState extends State<EditDeviceNameRoute> {
   @override
   Widget build(BuildContext context) {
     Dc1 dc1 = ModalRoute.of(context).settings.arguments;
-    TextEditingController _powerStripNameController =
-        TextEditingController(text: dc1.nameList[0]);
-    TextEditingController _masterSwitchController =
-        TextEditingController(text: dc1.nameList[1]);
-    TextEditingController _firstSwitchController =
-        TextEditingController(text: dc1.nameList[2]);
-    TextEditingController _secondSwitchController =
-        TextEditingController(text: dc1.nameList[3]);
-    TextEditingController _thirdSwitchController =
-        TextEditingController(text: dc1.nameList[4]);
+    TextEditingController _powerStripNameController = TextEditingController(text: dc1.nameList[0]);
+    TextEditingController _masterSwitchController = TextEditingController(text: dc1.nameList[1]);
+    TextEditingController _firstSwitchController = TextEditingController(text: dc1.nameList[2]);
+    TextEditingController _secondSwitchController = TextEditingController(text: dc1.nameList[3]);
+    TextEditingController _thirdSwitchController = TextEditingController(text: dc1.nameList[4]);
     return Scaffold(
       appBar: AppBar(
         title: Text("编辑名称"),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () {
+        onPressed: () async {
           var nameList = [
             _powerStripNameController.text,
             _masterSwitchController.text,
@@ -37,11 +33,12 @@ class _EditDeviceNameRouteState extends State<EditDeviceNameRoute> {
             _secondSwitchController.text,
             _thirdSwitchController.text
           ];
-          Api().updateDeviceName(dc1.id, nameList, (onSuccess) {
-            Navigator.of(context).pop();
-          }, (onFailed) {
-            showToast("保存失败:${onFailed.message}");
-          });
+          var httpResult = await Api().updateDeviceName(dc1.id, nameList);
+          if (httpResult.success) {
+            pop();
+          } else {
+            showToast("保存失败:${httpResult.message}");
+          }
         },
         child: Icon(
           Icons.check,

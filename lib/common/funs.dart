@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nav_router/nav_router.dart';
+
+safePop([result]) {
+  if (canPop()) {
+    navGK.currentState.maybePop(result);
+  }
+}
 
 void showToast(String text,
-    {ToastGravity gravity = ToastGravity.CENTER,
-    Toast toastLength: Toast.LENGTH_LONG}) {
+    {ToastGravity gravity = ToastGravity.CENTER, Toast toastLength: Toast.LENGTH_LONG}) {
   Fluttertoast.showToast(
     msg: text,
     toastLength: toastLength,
@@ -22,15 +28,13 @@ void showLoading(BuildContext context, [String text = "Loading..."]) {
       builder: (context) {
         return Center(
           child: Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(3),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                  ),
-                ]),
+            decoration:
+                BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3), boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 10,
+              ),
+            ]),
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.all(16),
             constraints: BoxConstraints(minHeight: 120, minWidth: 180),
