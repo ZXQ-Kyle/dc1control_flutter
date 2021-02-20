@@ -24,6 +24,7 @@ class _PeriodSettingRouteState extends State<PeriodSettingRoute> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _controller,
@@ -37,6 +38,16 @@ class _PeriodSettingRouteState extends State<PeriodSettingRoute> {
               inputFormatters: [
                 WhitelistingTextInputFormatter.digitsOnly,
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                '配置将在下次启动时生效',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
             ),
           ],
         ),

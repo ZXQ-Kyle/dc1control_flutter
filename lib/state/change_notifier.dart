@@ -9,14 +9,11 @@ class ProfileChangeNotifier extends ChangeNotifier {
   }
 }
 
-class HostModel extends ProfileChangeNotifier {
-
-}
+class HostModel extends ProfileChangeNotifier {}
 
 class ThemeModel extends ProfileChangeNotifier {
   ColorSwatch get currentTheme =>
-      Global.themes.firstWhere((e) => e.value == Global.profile?.theme,
-          orElse: () => Global.themes[0]);
+      Global.themes.firstWhere((e) => e.value == Global.profile?.theme, orElse: () => Global.themes[0]);
 
   set theme(ColorSwatch color) {
     if (color != currentTheme) {

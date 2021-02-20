@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:dc1clientflutter/bean/dc1.dart';
-import 'package:dc1clientflutter/common/bar_tip.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/net/api.dart';
-import 'package:dc1clientflutter/common/event_bus.dart';
 import 'package:dc1clientflutter/common/funs.dart';
 
 import 'package:dc1clientflutter/route/home/update_dialog.dart';

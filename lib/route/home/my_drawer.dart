@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:nav_router/nav_router.dart';
 
 import '../../main.dart';
+import '../log_route.dart';
 import '../period_setting_route.dart';
 import '../theme_route.dart';
 
@@ -84,6 +85,17 @@ class MyDrawer extends StatelessWidget {
             onTap: () {
               pop();
               routePush(SettingRoute());
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.insert_drive_file,
+              color: Theme.of(context).primaryColor,
+            ),
+            title: Text('日志'),
+            onTap: () {
+              pop();
+              routePush(LogRoute());
             },
           ),
           ListTile(

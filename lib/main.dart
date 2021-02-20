@@ -61,14 +61,9 @@ class MyApp extends StatelessWidget {
             );
           },
           routes: {
-            MyRoute.THEME_ROUTE: (context) => ThemeRoute(),
-            MyRoute.SETTING_ROUTE: (context) => SettingRoute(),
             MyRoute.EDIT_DEVICE_NAME_ROUTE: (context) => EditDeviceNameRoute(),
-            MyRoute.PLAN_ROUTE: (context) => PlanRoute(),
             MyRoute.ADD_PLAN_ROUTE: (context) => AddPlanRoute(),
             MyRoute.COUNT_DOWN_ROUTE: (context) => CountDownRoute(),
-            MyRoute.WIFI_CONFIG_ROUTE: (context) => WifiConfigRoute(),
-            MyRoute.ABOUT_ROUTE: (context) => AboutRoute(),
           },
         );
       }),
@@ -77,12 +72,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyRoute {
-  static const String THEME_ROUTE = "ThemeRoute";
-  static const String SETTING_ROUTE = "SettingRoute";
   static const String EDIT_DEVICE_NAME_ROUTE = "EditDeviceNameRoute";
-  static const String PLAN_ROUTE = "PlanRoute";
   static const String ADD_PLAN_ROUTE = "AddPlanRoute";
   static const String COUNT_DOWN_ROUTE = "CountDownRoute";
-  static const String WIFI_CONFIG_ROUTE = "WifiConfigRoute";
-  static const String ABOUT_ROUTE = "AboutRoute";
 }

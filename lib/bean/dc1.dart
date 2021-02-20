@@ -1,3 +1,4 @@
+import 'package:dc1clientflutter/common/global.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'dc1.g.dart';
@@ -35,7 +36,17 @@ class Dc1 extends Object {
   List<String> names;
 
   List<String> get nameList {
-    return names == null ? List<String>(5) : names;
+    if (names == null) {
+      var idName;
+      try {
+        idName = id.substring(id.length - 8, id.length);
+      } catch (e) {
+        logger.e(e);
+        idName = '未命名';
+      }
+      names = ['$idName', '开关1', '开关2', '开关3', '开关4'];
+    }
+    return names;
   }
 
   Dc1([

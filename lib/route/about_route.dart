@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PackageInfoModel extends ChangeNotifier {
   PackageInfo _packageInfo;
@@ -14,6 +15,7 @@ class PackageInfoModel extends ChangeNotifier {
   }
 }
 
+// ignore: must_be_immutable
 class AboutRoute extends StatelessWidget {
   PackageInfoModel _model = PackageInfoModel();
 
@@ -33,13 +35,18 @@ class AboutRoute extends StatelessWidget {
             children: <Widget>[
               Image.asset(
                 "img/icon.png",
-                height: 80,
+                height: 100,
                 fit: BoxFit.cover,
               ),
               Padding(
                 padding: EdgeInsets.only(top: 28),
                 child: Consumer<PackageInfoModel>(builder: (context, model, child) {
-                  return Text(model._packageInfo?.version ?? "");
+                  return Text(
+                    model._packageInfo?.version ?? "",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  );
                 }),
               ),
               Padding(
@@ -49,17 +56,73 @@ class AboutRoute extends StatelessWidget {
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-//              Ink(
-//                color: Colors.white,
-//                child: InkWell(
-//                  onTap: () {},
-//                  child: Container(
-//                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-//                    width: double.infinity,
-//                    child: Text("github地址"),
-//                  ),
-//                ),
-//              ),
+              Ink(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    launch('https://github.com/ZXQ-Kyle/dc1control_flutter');
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    width: double.infinity,
+                    child: Text(
+                      "控制端github地址：\nhttps://github.com/ZXQ-Kyle/dc1control_flutter",
+                      style: TextStyle(fontSize: 14, height: 1.8),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 8)),
+              Ink(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    launch('https://github.com/ZXQ-Kyle/Dc1Server');
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    width: double.infinity,
+                    child: Text(
+                      "服务端github地址：\nhttps://github.com/ZXQ-Kyle/Dc1Server",
+                      style: TextStyle(fontSize: 14, height: 1.8),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 8)),
+              Ink(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    launch('https://github.com/ZXQ-Kyle/N1Script');
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    width: double.infinity,
+                    child: Text(
+                      "安装脚本及说明：\nhttps://github.com/ZXQ-Kyle/N1Script",
+                      style: TextStyle(fontSize: 14, height: 1.8),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 8)),
+              Ink(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    launch('https://hub.docker.com/r/ponyopapa/dc1_server');
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    width: double.infinity,
+                    child: Text(
+                      "docker安装：\nhttps://hub.docker.com/r/ponyopapa/dc1_server",
+                      style: TextStyle(fontSize: 14, height: 1.8),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

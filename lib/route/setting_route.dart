@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/net/api_service.dart';
-
-import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../bean/server_config.dart';
@@ -18,12 +16,10 @@ class SettingRoute extends StatefulWidget {
 }
 
 class _SettingRouteState extends State<SettingRoute> {
-  TextEditingController _hostController = TextEditingController(text: Global.profile.host);
-  TextEditingController _socketPortController =
-      TextEditingController(text: (Global.profile.socketPort ?? "").toString());
+  TextEditingController _hostController = TextEditingController(text: Global.profile?.host ?? '');
   TextEditingController _httpPortController =
-      TextEditingController(text: (Global.profile.httpPort ?? "").toString());
-  TextEditingController _tokenController = TextEditingController(text: Global.profile.token);
+      TextEditingController(text: (Global.profile?.httpPort ?? "").toString());
+  TextEditingController _tokenController = TextEditingController(text: Global.profile?.token ?? '');
 
   GlobalKey _formKey = GlobalKey<FormState>();
 
@@ -137,13 +133,14 @@ class _SettingRouteState extends State<SettingRoute> {
       if (_host.startsWith("http")) {
         Global.profile.host = _host;
       } else {
-        Global.profile.host = "http://${_host}";
+        Global.profile.host = "http://$_host";
       }
-      Global.profile.httpPort = int.parse(_httpPortController.text);
+      Global.profile.httpPort = int.tryParse(_httpPortController.text) ?? 8880;
       Global.profile.token = _tokenController.text;
+      Global.saveProfile();
       http = Http();
       saveHistory();
-      Navigator.of(context).pop();
+      pop();
     } else {
       showToast("输入异常！");
     }

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/net/http_result.dart';
+import 'package:dio/dio.dart';
 
 import 'api_service.dart';
 
@@ -94,7 +97,8 @@ class Api {
 
   Future<HttpResult> addPlan(PlanBean planBean) async {
     try {
-      await http.post('api/addPlan', data: planBean);
+      Options options = Options(contentType: ContentType.json.toString());
+      await http.post('api/addPlan', data: planBean, options: options);
       return HttpResult.success();
     } catch (e) {
       logger.e(parseHttpError(e));

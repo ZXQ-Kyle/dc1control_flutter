@@ -1,7 +1,10 @@
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
+import 'package:dc1clientflutter/common/funs.dart';
 import 'package:dc1clientflutter/common/global.dart';
+import 'package:dc1clientflutter/route/log_route.dart';
+import 'package:dc1clientflutter/state/change_notifier.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/native_imp.dart';
 import 'package:flutter/foundation.dart';
@@ -61,6 +64,7 @@ class ApiInterceptor extends InterceptorsWrapper {
     ResponseData respData = ResponseData.fromJson(jsonDecode(response.data));
     if (respData.success) {
       response.data = respData.data;
+      LogModel().add(type: LogType.success, log: 'http请求：${response.request.uri}\n服务端回复：${response.data}');
       return http.resolve(response);
     } else {
       throw NotSuccessException.fromRespData(respData);
@@ -69,6 +73,8 @@ class ApiInterceptor extends InterceptorsWrapper {
 
   @override
   Future onError(DioError err) {
+    LogModel().add(type: LogType.error, log: err.toString());
+
     ///拦截未验证异常，退出到登录页
     if (err.type == DioErrorType.RESPONSE && err.response.data is Map && err.response.data['code'] == 401) {}
     return super.onError(err);
