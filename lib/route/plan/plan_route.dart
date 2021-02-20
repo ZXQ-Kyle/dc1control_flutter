@@ -4,9 +4,7 @@ import 'package:dc1clientflutter/bean/dc1.dart';
 import 'package:dc1clientflutter/bean/plan_bean.dart';
 import 'package:dc1clientflutter/common/global.dart';
 import 'package:dc1clientflutter/net/api.dart';
-import 'package:dc1clientflutter/common/funs.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -94,8 +92,13 @@ class _PlanRouteState extends State<PlanRoute> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
-          onPressed: () =>
-              Navigator.of(context).pushNamed(MyRoute.ADD_PLAN_ROUTE, arguments: _planModel._dc1),
+          onPressed: () async {
+            var haveNew = await Navigator.of(context)
+                .pushNamed<bool>(MyRoute.ADD_PLAN_ROUTE, arguments: _planModel._dc1);
+            if (haveNew ?? false) {
+              _planModel.refresh();
+            }
+          },
           child: Icon(Icons.add),
         ),
       ),

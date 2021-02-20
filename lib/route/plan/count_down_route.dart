@@ -199,7 +199,7 @@ class _CountDownRouteState extends State<CountDownRoute> {
 
     var httpResult2 = await Api().addPlan(planBean);
     if (httpResult2.success) {
-      safePop();
+      safePop(true);
     } else {
       showToast("添加关闭任务失败，请手动关闭开关");
     }

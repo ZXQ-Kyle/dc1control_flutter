@@ -38,7 +38,7 @@ class _SettingRouteState extends State<SettingRoute> {
         title: Text("设置"),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 10),
         constraints: BoxConstraints(minWidth: double.infinity, minHeight: double.infinity),
         child: Form(
           key: _formKey,
@@ -46,50 +46,62 @@ class _SettingRouteState extends State<SettingRoute> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              TextFormField(
-                controller: _hostController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: "服务器地址",
-                  hintText: "例如:192.168.1.1",
-                  prefixIcon: Icon(Icons.desktop_mac),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _hostController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: "服务器地址",
+                    hintText: "例如:192.168.1.1",
+                    prefixIcon: Icon(Icons.desktop_mac),
+                  ),
+                  validator: (value) {
+                    return value.length > 0 ? null : "请输入服务器地址";
+                  },
                 ),
-                validator: (value) {
-                  return value.length > 0 ? null : "请输入服务器地址";
-                },
               ),
-              TextFormField(
-                controller: _httpPortController,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Http端口",
-                  hintText: "默认8880",
-                  prefixIcon: Icon(Icons.send),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _httpPortController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "Http端口",
+                    hintText: "默认8880",
+                    prefixIcon: Icon(Icons.send),
+                  ),
+                  validator: (value) {
+                    return value.length > 0 ? null : "请输入Http端口";
+                  },
                 ),
-                validator: (value) {
-                  return value.length > 0 ? null : "请输入Http端口";
-                },
               ),
-              TextFormField(
-                controller: _tokenController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: "token",
-                  hintText: "默认dc1server",
-                  prefixIcon: Icon(Icons.strikethrough_s),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _tokenController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: "token",
+                    hintText: "默认dc1server",
+                    prefixIcon: Icon(Icons.strikethrough_s),
+                  ),
+                  validator: (value) {
+                    return value.length > 0 ? null : "请输入token";
+                  },
                 ),
-                validator: (value) {
-                  return value.length > 0 ? null : "请输入token";
-                },
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(minWidth: double.infinity),
-                child: RaisedButton(
-                  child: Text("保存"),
-                  textColor: Theme.of(context).primaryTextTheme.title.color,
-                  color: Theme.of(context).primaryColor,
-                  onPressed: _save,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: double.infinity),
+                  child: RaisedButton(
+                    child: Text("保存"),
+                    textColor: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).primaryColor,
+                    onPressed: _save,
+                  ),
                 ),
               ),
               Expanded(
@@ -108,21 +120,24 @@ class _SettingRouteState extends State<SettingRoute> {
   }
 
   Widget _buildItem(ServerConfig config) {
-    return InkWell(
-      onTap: () {
-        _hostController.text = config.host;
-        _httpPortController.text = config.httpPort.toString();
-        _tokenController.text = config.token;
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).primaryColor.withOpacity(0.2),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: InkWell(
+        onTap: () {
+          _hostController.text = config.host;
+          _httpPortController.text = config.httpPort.toString();
+          _tokenController.text = config.token;
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Text(
+            '${config.host}:${config.httpPort}',
+            style: TextStyle(fontSize: 16),
+          ),
         ),
-        padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        child: Text('host:  ${config.host}\nhttpPort:  ${config.httpPort}'),
       ),
     );
   }

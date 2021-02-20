@@ -53,8 +53,12 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                         Icons.edit,
                         color: primaryColor,
                       ),
-                      onTap: () {
-                        Navigator.of(context).pushNamed(MyRoute.EDIT_DEVICE_NAME_ROUTE, arguments: dc1);
+                      onTap: () async {
+                        var success = await Navigator.of(context)
+                            .pushNamed<bool>(MyRoute.EDIT_DEVICE_NAME_ROUTE, arguments: dc1);
+                        if (success ?? false) {
+                          Provider.of<DeviceListModel>(context, listen: false).refresh();
+                        }
                       },
                     )
                   ],
@@ -97,8 +101,12 @@ class _Dc1ItemWidgetState extends State<Dc1ItemWidget> {
                     Expanded(
                       flex: 1,
                       child: FlatButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, MyRoute.COUNT_DOWN_ROUTE, arguments: widget._dc1);
+                        onPressed: () async {
+                          var hasNew = await Navigator.pushNamed(context, MyRoute.COUNT_DOWN_ROUTE,
+                              arguments: widget._dc1);
+                          if (hasNew ?? false) {
+                            Provider.of<DeviceListModel>(context, listen: false).refresh();
+                          }
                         },
                         textColor: primaryColor,
                         child: Text(

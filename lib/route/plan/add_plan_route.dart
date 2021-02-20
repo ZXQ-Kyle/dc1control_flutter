@@ -296,7 +296,7 @@ class _AddPlanRouteState extends State<AddPlanRoute> {
 
     var httpResult = await Api().addPlan(planBean);
     if (httpResult.success) {
-      safePop();
+      safePop(true);
     } else {
       BarTip.warning(context, '保存失败:${httpResult.message}');
     }

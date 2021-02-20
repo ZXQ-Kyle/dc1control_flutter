@@ -35,7 +35,7 @@ class _EditDeviceNameRouteState extends State<EditDeviceNameRoute> {
           ];
           var httpResult = await Api().updateDeviceName(dc1.id, nameList);
           if (httpResult.success) {
-            pop();
+            pop(true);
           } else {
             showToast("保存失败:${httpResult.message}");
           }
